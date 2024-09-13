@@ -4,7 +4,6 @@ title: IA on a Stick
 theme: ["PaperMod"]
 params:
   customJS: [
-    # "js/main.js",
     "js/photoswipe-lightbox.esm.js",
     "js/photoswipe.esm.js"
   ]

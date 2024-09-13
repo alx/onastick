@@ -1,5 +1,6 @@
 # Generated files by hugo
 hugo_stats.json
+/public/
 
 # Temporary lock file while building
 /.hugo_build.lock

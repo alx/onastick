@@ -1,0 +1,16 @@
+#+title: Readme
+
+** Dev Setup
+
+*** Clone repository
+
+*** Install PaperMod Theme
+
+#+BEGIN_SRC bash
+git submodule add --depth=1 https://github.com/adityatelange/hugo-PaperMod.git themes/PaperMod
+git submodule update --init --recursive # needed when you reclone your repo (submodules may not get cloned automatically)
+#+END_SRC
+
+[[https://github.com/adityatelange/hugo-PaperMod][PaperMod Github]]
+
+*** Deploy on Alpine Pi

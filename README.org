@@ -34,6 +34,7 @@ git submodule update --init --recursive
 **** APK packages
 
 #+begin_src bash
+ssh root@${RASPI_IP}
 apk add mjpeg-streamer \
     nginx \
     tailscale \
@@ -43,10 +44,7 @@ lbu commit
 
 **** Tailscale auth key
 
-1. Create a *reusable* auth key on Tailscale admin website:
-
-https://login.tailscale.com/admin/settings/keys
-
+1. Create a *reusable* auth key on Tailscale admin website: https://login.tailscale.com/admin/settings/keys
 2. Copy auth key in ~./server/local.d/tailscale.start~
 3. Update local.d script on raspberry pi:
 

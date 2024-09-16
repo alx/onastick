@@ -1,5 +1,7 @@
 #+title: IA on a Stick
 
+[[./assets/camera_logo.png]]
+
 ** Dev Setup
 
 #+begin_src bash

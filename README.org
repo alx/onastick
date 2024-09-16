@@ -1,12 +1,12 @@
-#+title: Readme
+#+title: IA on a Stick
+
+** Dev Setup
 
 #+begin_src bash
 $ONASTICK_PATH=/home/alx/www/onastick/
 $A1111_FORGE_PATH=/home/alx/code/a1111_forge/
 $RASPI_IP="192.168.8.178"
 #+end_src
-
-** Dev Setup
 
 *** Clone repository
 
@@ -27,8 +27,6 @@ git submodule update --init --recursive
 
 [[https://github.com/adityatelange/hugo-PaperMod][PaperMod Github]]
 
-*** Deploy on Alpine Pi
-
 ** Maintenance
 
 *** Update nginx on raspberry pi
@@ -43,6 +41,14 @@ rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
 #+begin_src bash
 cd $ONASTICK_PATH
 rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+#+end_src
+
+*** Update raspberry pi website
+
+#+begin_src bash
+cd $ONASTICK_PATH
+hugo
+rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
 #+end_src
 
 ** Start website
@@ -62,12 +68,4 @@ export COMMANDLINE_ARGS="--api"
 
 #+begin_src bash
 tailscale serve --http 80 7860
-#+end_src
-
-*** Update raspberry pi website
-
-#+begin_src bash
-cd $ONASTICK_PATH
-hugo
-rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
 #+end_src

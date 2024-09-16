@@ -261,8 +261,12 @@ const startCountdown = () => {
 
 const nextPhoto = () => {
 
+  let btnNext = document.getElementById("btnPhoto");
+  btnNext.classList.add("d-none")
+
   let btnPhoto = document.getElementById("btnPhoto");
   btnPhoto.addEventListener("click", startCountdown)
+  btnPhoto.classList.remove("d-none")
 
   let btnTxt = document.getElementById("btnTxt");
   btnTxt.innerText = "Take Photo!";
@@ -283,15 +287,18 @@ const takePhoto = async () => {
 
   const loadingProgressElement = document.getElementById("loadingProgress")
   loadingProgressElement.classList.remove("d-none");
+  loadingProgressElement.classList.remove("w-100");
+  loadingProgressElement.classList.add("w-25");
 
   let progressStep = 25;
   let progressInterval = setInterval(() => {
 
+    let progressClassList = loadingProgressElement.firstChild.classList;
     if (progressStep < 100) {
 
-      loadingProgressElement.firstChild.classList.remove(`w-${progressStep}`)
+      progressClassList.remove(`w-${progressStep}`)
       progressStep += 25;
-      loadingProgressElement.firstChild.classList.add(`w-${progressStep}`)
+      progressClassList.add(`w-${progressStep}`)
 
     }
 
@@ -329,14 +336,13 @@ const takePhoto = async () => {
 
   // Update action button for next photo
   btnPhoto.disabled = false;
-  btnTxt.innerText = "Next Photo!";
+  btnPhoto.classList.add("d-none")
 
-  // Update button click event
-  btnPhoto.addEventListener("click", nextPhoto)
-
+  btnNext.classList.remove("d-none")
 }
 
 document.getElementById("btnPhoto").addEventListener("click", startCountdown)
+document.getElementById("btnNext").addEventListener("click", nextPhoto)
 
 // const test = async () => {
 //

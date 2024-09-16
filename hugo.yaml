@@ -3,9 +3,9 @@ languageCode: en-us
 title: IA on a Stick
 theme: ["PaperMod"]
 params:
+  disableThemeToggle: true
   customJS: [
-    "js/photoswipe-lightbox.esm.js",
-    "js/photoswipe.esm.js"
+    "js/main.js"
   ]
   profileMode:
     enabled: true

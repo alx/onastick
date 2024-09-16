@@ -1,5 +1,9 @@
 #+title: Readme
 
+ ** TODO
+
+ - faster stream: fps? low res? find a way
+
 ** Dev Setup
 
 *** Clone repository

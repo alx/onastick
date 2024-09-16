@@ -1,20 +1,73 @@
 #+title: Readme
 
- ** TODO
-
- - faster stream: fps? low res? find a way
+#+begin_src bash
+$ONASTICK_PATH=/home/alx/www/onastick/
+$A1111_FORGE_PATH=/home/alx/code/a1111_forge/
+$RASPI_IP="192.168.8.178"
+#+end_src
 
 ** Dev Setup
 
 *** Clone repository
 
+#+BEGIN_SRC bash
+mkdir -p $ONASTICK_PATH
+git clone https://github.com/alx/onastick.git
+#+END_SRC
+
 *** Install PaperMod Theme
 
 #+BEGIN_SRC bash
+cd $ONASTICK_PATH
 git submodule add --depth=1 https://github.com/adityatelange/hugo-PaperMod.git themes/PaperMod
-git submodule update --init --recursive # needed when you reclone your repo (submodules may not get cloned automatically)
+
+# needed when you reclone your repo (submodules may not get cloned automatically)
+git submodule update --init --recursive
 #+END_SRC
 
 [[https://github.com/adityatelange/hugo-PaperMod][PaperMod Github]]
 
 *** Deploy on Alpine Pi
+
+** Maintenance
+
+*** Update nginx on raspberry pi
+
+#+begin_src bash
+cd $ONASTICK_PATH
+rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
+#+end_src
+
+*** Update running script runned at raspberry pi boot
+
+#+begin_src bash
+cd $ONASTICK_PATH
+rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+#+end_src
+
+** Start website
+
+*** On GPU laptop
+
+- Start A1111 Forge:
+
+#+begin_src bash
+cd $A1111_FORGE_PATH
+. .venv/bin/activate
+export COMMANDLINE_ARGS="--api"
+./webui.sh
+#+end_src
+
+- Listen A1111 port 7860 on tailnet port 80:
+
+#+begin_src bash
+tailscale serve --http 80 7860
+#+end_src
+
+*** Update raspberry pi website
+
+#+begin_src bash
+cd $ONASTICK_PATH
+hugo
+rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
+#+end_src

@@ -29,6 +29,32 @@ git submodule update --init --recursive
 
 [[https://github.com/adityatelange/hugo-PaperMod][PaperMod Github]]
 
+*** Alpine
+
+**** APK packages
+
+#+begin_src bash
+apk add mjpeg-streamer \
+    nginx \
+    tailscale \
+    vim
+lbu commit
+#+end_src
+
+**** Tailscale auth key
+
+1. Create a *reusable* auth key on Tailscale admin website:
+
+https://login.tailscale.com/admin/settings/keys
+
+2. Copy auth key in ~./server/local.d/tailscale.start~
+3. Update local.d script on raspberry pi:
+
+#+begin_src bash
+cd $ONASTICK_PATH
+rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+#+end_src
+
 ** Maintenance
 
 *** Update nginx on raspberry pi
@@ -57,7 +83,7 @@ rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
 
 *** On GPU laptop
 
-- Start A1111 Forge:
+**** Start A1111 Forge:
 
 #+begin_src bash
 cd $A1111_FORGE_PATH
@@ -66,7 +92,7 @@ export COMMANDLINE_ARGS="--api"
 ./webui.sh
 #+end_src
 
-- Listen A1111 port 7860 on tailnet port 80:
+**** Listen A1111 port 7860 on tailnet port 80:
 
 #+begin_src bash
 tailscale serve --http 80 7860

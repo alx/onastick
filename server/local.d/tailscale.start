@@ -1,4 +1,3 @@
 #!/bin/sh
 tailscale up \
-	--hostname alpine \
-	--auth-key  tskey-auth-kwJFr5HoF911CNTRL-fjjxnYNzr7MLex4bivbG8McvnvrT7MBnQ
+	--auth-key  tskey-auth-CHANGE-ME-WITH-REUSABLE-AUTH-KEY

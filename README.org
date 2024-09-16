@@ -1,6 +1,6 @@
 #+title: IA on a Stick
 
-[[./assets/camera_logo.png]]
+[[./static/camera_logo.png]]
 
 ** Dev Setup
 

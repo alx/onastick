@@ -233,10 +233,14 @@ const displayResult = (imgHTMLElement) => {
 const startCountdown = () => {
 
   let btnPhoto = document.getElementById("btnPhoto");
-  let btnTxt = document.getElementById("btnTxt");
-  let seconds = 1;
+  btnPhoto.classList.add("d-none")
 
-  btnPhoto.disabled = true;
+  let btnCountdown = document.getElementById("btnCountdown");
+  btnCountdown.classList.remove("d-none")
+
+  let btnTxt = document.getElementById("btnTxtCountDown");
+  let seconds = 3;
+
   btnTxt.innerText = seconds + "...";
   seconds--;
 
@@ -250,26 +254,22 @@ const startCountdown = () => {
     } else {
 
       clearInterval(countdown);
-      btnTxt.innerText = "SMILE!";
+      btnTxt.innerText = "😄 SMILE!";
 
       setTimeout(takePhoto, 1000)
 
     }
 
-  }, 1000);
+  }, 800);
 }
 
 const nextPhoto = () => {
 
-  let btnNext = document.getElementById("btnPhoto");
-  btnNext.classList.add("d-none")
-
   let btnPhoto = document.getElementById("btnPhoto");
-  btnPhoto.addEventListener("click", startCountdown)
-  btnPhoto.classList.remove("d-none")
+  let btnNext = document.getElementById("btnNext");
 
-  let btnTxt = document.getElementById("btnTxt");
-  btnTxt.innerText = "Take Photo!";
+  btnNext.classList.add("d-none")
+  btnPhoto.classList.remove("d-none")
 
   let divStream = document.getElementById("stream");
   divStream.classList.remove("d-none")
@@ -285,20 +285,23 @@ const nextPhoto = () => {
 
 const takePhoto = async () => {
 
-  const loadingProgressElement = document.getElementById("loadingProgress")
+  let btnCountdown = document.getElementById("btnCountdown");
+  let btnPhoto = document.getElementById("btnPhoto");
+  let btnNext = document.getElementById("btnNext");
+  let loadingProgressElement = document.getElementById("loadingProgress")
+
+  btnCountdown.classList.add("d-none");
   loadingProgressElement.classList.remove("d-none");
-  loadingProgressElement.classList.remove("w-100");
-  loadingProgressElement.classList.add("w-25");
 
   let progressStep = 25;
+  loadingProgressElement.attr('aria-valuenow', progressStep).css('width', progressStep);
+
   let progressInterval = setInterval(() => {
 
-    let progressClassList = loadingProgressElement.firstChild.classList;
     if (progressStep < 100) {
 
-      progressClassList.remove(`w-${progressStep}`)
       progressStep += 25;
-      progressClassList.add(`w-${progressStep}`)
+      loadingProgressElement.attr('aria-valuenow', progressStep).css('width', progressStep);
 
     }
 
@@ -306,15 +309,6 @@ const takePhoto = async () => {
 
   let divStream = document.getElementById("stream");
   divStream.classList.add("d-none")
-
-  let btnPhoto = document.getElementById("btnPhoto");
-  let btnSpinner = document.getElementById("btnSpinner");
-  let btnStatus = document.getElementById("btnStatus");
-  let btnTxt = document.getElementById("btnTxt");
-
-  btnSpinner.classList.remove("d-none")
-  btnStatus.classList.remove("d-none")
-  btnTxt.classList.add("d-none")
 
   const CAMERA_CURRENT_URL = "/current";
 
@@ -329,15 +323,9 @@ const takePhoto = async () => {
   let divOutput = document.getElementById("output");
   divOutput.classList.remove("d-none")
 
-  // update button element display
-  btnSpinner.classList.add("d-none")
-  btnStatus.classList.add("d-none")
-  btnTxt.classList.remove("d-none")
-
   // Update action button for next photo
-  btnPhoto.disabled = false;
-  btnPhoto.classList.add("d-none")
 
+  btnPhoto.classList.add("d-none")
   btnNext.classList.remove("d-none")
 }
 

@@ -5,3 +5,5 @@ hugo_stats.json
 # Temporary lock file while building
 /.hugo_build.lock
 
+# Tailscale config with auth key
+server/local.d/tailscale.start

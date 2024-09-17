@@ -1,0 +1,4 @@
+#!/bin/sh
+tailscale up \
+    --hostname alpine \
+	--auth-key  tskey-auth-kTBE7hvmhM11CNTRL-zNT7SNb9zz4HfcSGHdMh15cSnoMDffyoR

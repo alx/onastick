@@ -6,4 +6,4 @@ hugo_stats.json
 /.hugo_build.lock
 
 # Tailscale config with auth key
-server/local.d/tailscale.start
+server/local.d/02_tailscale_keys.start

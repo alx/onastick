@@ -46,7 +46,7 @@ const getImgBase64 = async (imgHTMLElement) => {
 
 const sdApiRequest = async (inputImgBase64) => {
 
-  const SERVER_API_ENDPOINT = "/sdapi/sdapi/v1/txt2img";
+  const SERVER_API_ENDPOINT = "/gpu/sdapi/v1/txt2img";
 
   const prompt = "(esoteric magicians:1.1) on an (exoplanet:1.1) point of view during sunrise, simple outlined illustration, beachy colors, <lora:sd_xl_turbo_lora_v1:1>, (dali style:1.3)";
   const negative_prompt = "text, bad art, blurry, watermark, person, tripod, letters, ugly, deformed, glasses";

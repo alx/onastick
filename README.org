@@ -34,23 +34,34 @@ git submodule update --init --recursive
 **** APK packages
 
 #+begin_src bash
-ssh root@${RASPI_IP}
-apk add mjpeg-streamer \
-    nginx \
-    tailscale \
-    vim
-lbu commit
+ssh root@${RASPI_IP} <<'EOL'
+        apk add mjpeg-streamer \
+        nginx \
+        tailscale \
+        vim
+EOL
+
+# don't forget to update Alpine local backup
+ssh root@${RASPI_PI} 'lbu commit'
 #+end_src
 
 **** Tailscale auth key
 
 1. Create a *reusable* auth key on Tailscale admin website: https://login.tailscale.com/admin/settings/keys
-2. Copy auth key in ~./server/local.d/tailscale.start~
+2. Copy auth key in ~./server/local.d/02_tailscale_keys.start~
 3. Update local.d script on raspberry pi:
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+cp ./server/local/02_tailscale_nokeys.start \
+    ./server/local/02_tailscale_keys.start
+
+rsync -r ./server/local/02_tailscale_keys.start \
+    root@${RASPI_IP}:/etc/local.d/
+
+# You must add local to default services
+ssh root@${RASPI_PI} 'rc-update add local default'
+ssh root@${RASPI_PI} 'lbu commit'
 #+end_src
 
 ** Maintenance
@@ -60,6 +71,9 @@ rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
 #+begin_src bash
 cd $ONASTICK_PATH
 rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
+
+# don't forget to update Alpine local backup
+ssh root@${RASPI_PI} 'lbu commit'
 #+end_src
 
 *** Update running script runned at raspberry pi boot
@@ -67,6 +81,9 @@ rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
 #+begin_src bash
 cd $ONASTICK_PATH
 rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+
+# don't forget to update Alpine local backup
+ssh root@${RASPI_PI} 'lbu commit'
 #+end_src
 
 *** Update raspberry pi website
@@ -75,6 +92,9 @@ rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
 cd $ONASTICK_PATH
 hugo
 rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
+
+# don't forget to update Alpine local backup
+ssh root@${RASPI_PI} 'lbu commit'
 #+end_src
 
 ** Start website

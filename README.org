@@ -2,6 +2,16 @@
 
 [[./static/camera_logo.png]]
 
+#+begin_quote
+"Collaborate on 'OnAStick,' a powerful system integrating Raspberry Pi with Alpine Linux, Tailscale networking, and PaperMod theming for seamless remote access and streamlined hardware management. The project offers easy-to-follow scripts for setting up services, maintaining remote systems, and deploying web interfaces, with robust support for GPU-based operations on the A1111 Forge. Ideal for developers looking to optimize IoT and edge computing solutions while ensuring scalable network security and performance."
+#+end_quote
+
+** Hardware stack
+
+[[./static/hardware_setup_202409.jpeg]]
+
+** Network stack
+
 ** Dev Setup
 
 #+begin_src bash
@@ -34,7 +44,7 @@ git submodule update --init --recursive
 **** APK packages
 
 #+begin_src bash
-ssh root@${RASPI_IP} <<'EOL'
+ssh root@$RASPI_IP <<'EOL'
         apk add mjpeg-streamer \
         nginx \
         tailscale \
@@ -42,7 +52,7 @@ ssh root@${RASPI_IP} <<'EOL'
 EOL
 
 # don't forget to update Alpine local backup
-ssh root@${RASPI_PI} 'lbu commit'
+ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
 **** Tailscale auth key
@@ -53,15 +63,25 @@ ssh root@${RASPI_PI} 'lbu commit'
 
 #+begin_src bash
 cd $ONASTICK_PATH
-cp ./server/local/02_tailscale_nokeys.start \
-    ./server/local/02_tailscale_keys.start
+cp ./server/local.d/02_tailscale_nokeys.start \
+    ./server/local.d/02_tailscale_keys.start
 
 rsync -r ./server/local/02_tailscale_keys.start \
     root@${RASPI_IP}:/etc/local.d/
 
 # You must add local to default services
-ssh root@${RASPI_PI} 'rc-update add local default'
-ssh root@${RASPI_PI} 'lbu commit'
+ssh root@$RASPI_IP 'rc-update add local default'
+ssh root@$RASPI_IP 'lbu commit'
+#+end_src
+
+**** Install other startup scripts
+
+#+begin_src bash
+cd $ONASTICK_PATH
+rsync -r ./server/local.d/* root@${RASPI_IP}:/etc/local.d/
+
+# don't forget to update Alpine local backup
+ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
 ** Maintenance
@@ -73,17 +93,17 @@ cd $ONASTICK_PATH
 rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
 
 # don't forget to update Alpine local backup
-ssh root@${RASPI_PI} 'lbu commit'
+ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
 *** Update running script runned at raspberry pi boot
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync -r ./server/local/* root@${RASPI_IP}:/etc/local.d/
+rsync -r ./server/local.d/* root@${RASPI_IP}:/etc/local.d/
 
 # don't forget to update Alpine local backup
-ssh root@${RASPI_PI} 'lbu commit'
+ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
 *** Update raspberry pi website
@@ -94,7 +114,7 @@ hugo
 rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
 
 # don't forget to update Alpine local backup
-ssh root@${RASPI_PI} 'lbu commit'
+ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
 ** Start website

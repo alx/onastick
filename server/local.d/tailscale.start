@@ -1,3 +1,4 @@
 #!/bin/sh
 tailscale up \
+    --hostname CHANGE_ME \
 	--auth-key  tskey-auth-CHANGE-ME-WITH-REUSABLE-AUTH-KEY

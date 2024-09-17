@@ -5,3 +5,7 @@ body {
 header img {
     max-width: 150px;
 }
+
+header a.btn {
+    width: 150px;
+}

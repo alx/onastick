@@ -1,3 +1,4 @@
+let photoCountdown;
 
 const getImgSource = async (url) => {
 
@@ -157,53 +158,6 @@ const sdApiRequest = async (inputImgBase64) => {
     "save_images": true,
   };
 
-  // const paramsFromUI = {
-  //   "batch_size": 1,
-  //   "cfg_scale": 1.7,
-  //   "comments": {},
-  //   "denoising_strength": 0.7,
-  //   "disable_extra_networks": false,
-  //   "distilled_cfg_scale": 3.5,
-  //   "do_not_save_grid": false,
-  //   "do_not_save_samples": false,
-  //   "enable_hr": false,
-  //   "height": 1024,
-  //   "hr_cfg": 7,
-  //   "hr_distilled_cfg": 3.5,
-  //   "hr_negative_prompt": "",
-  //   "hr_prompt": "",
-  //   "hr_resize_x": 0,
-  //   "hr_resize_y": 0,
-  //   "hr_scale": 2,
-  //   "hr_second_pass_steps": 0,
-  //   "hr_upscaler": "Latent",
-  //   "n_iter": 1,
-  //   "negative_prompt": "text,bad art,blurry,watermark,person,tripod,letters,ugly,deformed,",
-  //   "override_settings": {},
-  //   "override_settings_restore_afterwards": true,
-  //   "prompt": "a group of (esoteric magicians:1.1) on an (exoplanet:1.1) point of view during sunrise,simple outlined illustration,beachy colors,<lora:sd_xl_turbo_lora_v1:1>,(dali style:1.3),",
-  //   "restore_faces": false,
-  //   "s_churn": 0.0,
-  //   "s_min_uncond": 0.0,
-  //   "s_noise": 1.0,
-  //   "s_tmax": null,
-  //   "s_tmin": 0.0,
-  //   "sampler_name": "LCM",
-  //   "scheduler": "Automatic",
-  //   "script_args": [],
-  //   "script_name": null,
-  //   "seed": -1,
-  //   "seed_enable_extras": true,
-  //   "seed_resize_from_h": -1,
-  //   "seed_resize_from_w": -1,
-  //   "steps": 10,
-  //   "styles": [],
-  //   "subseed": -1,
-  //   "subseed_strength": 0,
-  //   "tiling": false,
-  //   "width": 1024
-  // };
-
   const response = await fetch(SERVER_API_ENDPOINT, {
     method: "POST",
     body: JSON.stringify(txt2imgParams),
@@ -238,23 +192,28 @@ const startCountdown = () => {
   let btnCountdown = document.getElementById("btnCountdown");
   btnCountdown.classList.remove("d-none")
 
-  let btnTxt = document.getElementById("btnTxtCountDown");
   let seconds = 3;
-
-  btnTxt.innerText = seconds + "...";
+  btnCountdown.innerText = `⏲ ${seconds}...`;
   seconds--;
 
-  let countdown = setInterval(() => {
+  photoCountdown = setInterval(() => {
 
     if (seconds > 0) {
 
-      btnTxt.innerText = seconds + "...";
+      btnCountdown.innerText = `⏲ ${seconds}...`;
       seconds--;
 
     } else {
 
-      clearInterval(countdown);
-      btnTxt.innerText = "😄 SMILE!";
+      console.log(2)
+      console.log(seconds)
+
+      clearInterval(photoCountdown);
+
+      let btnSmile = document.getElementById("btnSmile");
+
+      btnCountdown.classList.add("d-none")
+      btnSmile.classList.remove("d-none")
 
       setTimeout(takePhoto, 1000)
 
@@ -285,27 +244,52 @@ const nextPhoto = () => {
 
 const takePhoto = async () => {
 
-  let btnCountdown = document.getElementById("btnCountdown");
   let btnPhoto = document.getElementById("btnPhoto");
+  let btnSmile = document.getElementById("btnSmile");
+  let btnCountdown = document.getElementById("btnCountdown");
   let btnNext = document.getElementById("btnNext");
+
   let loadingProgressElement = document.getElementById("loadingProgress")
+  let loadingProgressBarElement = document.getElementById("loadingProgressBar")
+
+  let progressStep = 1;
+  loadingProgressBarElement.style.width = `${progressStep}%`
 
   btnCountdown.classList.add("d-none");
   loadingProgressElement.classList.remove("d-none");
 
-  let progressStep = 25;
-  loadingProgressElement.attr('aria-valuenow', progressStep).css('width', progressStep);
+  const progressTxt = [
+    "☎ Pixel Summoning",
+    "☎ Render Requesting",
+    "☎ Matrix Negotiation",
+    "☎ Buffer Bargaining",
+    "☎ Shader Shuffling",
+    "☎ Frame Fetching",
+    "☎ Texture Tuning",
+    "☎ Byte Wrangling",
+    "☎ Cache Consulting",
+    "☎ Algorithm Arbitration"
+  ]
 
   let progressInterval = setInterval(() => {
 
     if (progressStep < 100) {
 
-      progressStep += 25;
-      loadingProgressElement.attr('aria-valuenow', progressStep).css('width', progressStep);
+      progressStep += 1;
+      loadingProgressBarElement.style.width = `${progressStep}%`
+
+      if (progressStep % 10 === 0) {
+        const selectedTxt = progressTxt[Math.floor(Math.random() * progressTxt.length)]
+        loadingProgressBarElement.innerHTML = selectedTxt
+      }
+
+    } else {
+
+      clearInterval(progressInterval);
 
     }
 
-  }, 7000);
+  }, 300);
 
   let divStream = document.getElementById("stream");
   divStream.classList.add("d-none")
@@ -324,19 +308,10 @@ const takePhoto = async () => {
   divOutput.classList.remove("d-none")
 
   // Update action button for next photo
-
+  btnSmile.classList.add("d-none")
   btnPhoto.classList.add("d-none")
   btnNext.classList.remove("d-none")
 }
 
-document.getElementById("btnPhoto").addEventListener("click", startCountdown)
-document.getElementById("btnNext").addEventListener("click", nextPhoto)
-
-// const test = async () => {
-//
-//   const CAMERA_CURRENT_URL = "/current";
-//
-//   const sourceImgHTMLElement = await getImgSource(CAMERA_CURRENT_URL)
-//   const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
-// }
-// document.getElementById("btnPhoto").addEventListener("click", test)
+document.getElementById("btnPhoto").addEventListener("click", startCountdown, false)
+document.getElementById("btnNext").addEventListener("click", nextPhoto, false)

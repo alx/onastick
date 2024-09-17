@@ -28,16 +28,16 @@
 - instax printer: real life result
 - big red button: tangible UI, no screen
 
-** Network stack
+** Network
 
 [[./static/network_diagram_202409.png]]
 
 ** Dev Setup
 
 #+begin_src bash
-$ONASTICK_PATH=/home/alx/www/onastick/
-$A1111_FORGE_PATH=/home/alx/code/a1111_forge/
-$RASPI_IP="192.168.8.178"
+export ONASTICK_PATH=/home/alx/www/onastick/
+export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
+export RASPI_IP=192.168.8.178
 #+end_src
 
 *** Clone repository
@@ -104,13 +104,23 @@ rsync -r ./server/local.d/* root@${RASPI_IP}:/etc/local.d/
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
+**** Install nginx configuration
+
+#+begin_src bash
+cd $ONASTICK_PATH
+rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+
+# don't forget to update Alpine local backup
+ssh root@$RASPI_IP 'lbu commit'
+#+end_src
+
 ** Maintenance
 
 *** Update nginx on raspberry pi
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/
+rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/default.conf
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'

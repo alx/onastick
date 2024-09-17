@@ -10,7 +10,27 @@
 
 [[./static/hardware_setup_202409.jpeg]]
 
+*** Current stack - 202409
+
+- RaspberryPi 2 Model B+
+- SDcard 16Go
+- USB webcam, Logitech c270
+- 4G wifi router, GL-iNet GL-XE300
+- PowerBank 2000mAh 5V Power Bank, Varta 57962
+- 1x USB-B - USB-micro cable: battery - raspi
+- 1x USB-B - USB-C cable: battery - router
+- 1x eth cable : router - raspi
+- not visible: hosted gpu running sd
+
+*** Future stack
+
+- RaspberryPi 3+: remove router and 2x cables
+- instax printer: real life result
+- big red button: tangible UI, no screen
+
 ** Network stack
+
+[[./static/network_diagram_202409.png]]
 
 ** Dev Setup
 

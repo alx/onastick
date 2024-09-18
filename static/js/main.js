@@ -1,4 +1,56 @@
-let photoCountdown;
+// Intervals
+let photoCountdownInterval;
+let btnPhotoEmojiInterval;
+let btnSmileEmojiInterval;
+
+// Show the flash light on btnPhoto emoji
+let btnPhotoEmojiFlash = false;
+const btnPhotoModifyEmoji = () => {
+  let btnPhoto = document.getElementById("btnPhoto");
+  btnPhoto.innerText = btnPhotoEmojiFlash ? "📷":"📸";
+  btnPhotoEmojiFlash = !btnPhotoEmojiFlash;
+}
+
+// Rotate emoji on btnSmile button
+const btnSmileEmojis = ["🥰","😄","🤩","😘"]
+const btnSmileModifyEmoji = () => {
+  const randomIndex = Math.floor(
+    Math.random() * btnSmileEmojis.length
+  );
+  const selectedEmoji = btnSmileEmojis[randomIndex]
+  let btnSmile = document.getElementById("btnSmile");
+  btnSmile.innerText = selectedEmoji;
+}
+
+window.onload = () => {
+  btnPhotoEmojiInterval = setInterval(btnPhotoModifyEmoji, 300);
+  btnSmileEmojiInterval = setInterval(btnSmileModifyEmoji, 400);
+}
+
+// When clicking on btnSmile, show a grimacing face for 1s
+const smileClick = () => {
+
+  let btnSmile = document.getElementById("btnSmile");
+  btnSmile.innerText = "😬";
+
+  clearInterval(btnSmileEmojiInterval);
+  setTimeout(() => {
+    btnSmileEmojiInterval = setInterval(btnSmileModifyEmoji, 400);
+  }, 1000)
+
+}
+
+// When clicking on btnProcessing, show a head exploding face for 1s
+const processingClick = () => {
+
+  let btnProcessing = document.getElementById("btnProcessing");
+  btnProcessing.innerText = "🤯";
+
+  setTimeout(() => {
+    btnProcessing.innerText = "🧠";
+  }, 1000)
+
+}
 
 const getImgSource = async (url) => {
 
@@ -192,34 +244,45 @@ const startCountdown = () => {
   let btnCountdown = document.getElementById("btnCountdown");
   btnCountdown.classList.remove("d-none")
 
-  let seconds = 3;
-  btnCountdown.innerText = `⏲ ${seconds}...`;
-  seconds--;
+  btnCountdown.innerText = `🕚`;
+  let countdownIndex = 11;
 
-  photoCountdown = setInterval(() => {
+  const countdownEmojis = [
+    "🕚",
+    "🕐",
+    "🕑",
+    "🕒",
+    "🕓",
+    "🕔",
+    "🕕",
+    "🕖",
+    "🕗",
+    "🕘",
+    "🕙",
+    "🕚"
+  ]
 
-    if (seconds > 0) {
+  photoCountdownInterval = setInterval(() => {
 
-      btnCountdown.innerText = `⏲ ${seconds}...`;
-      seconds--;
+    if (countdownIndex > -1) {
+
+      btnCountdown.innerText = countdownEmojis[countdownIndex];
+      countdownIndex--;
 
     } else {
 
-      console.log(2)
-      console.log(seconds)
-
-      clearInterval(photoCountdown);
+      clearInterval(photoCountdownInterval);
 
       let btnSmile = document.getElementById("btnSmile");
 
       btnCountdown.classList.add("d-none")
       btnSmile.classList.remove("d-none")
 
-      setTimeout(takePhoto, 1000)
+      setTimeout(takePhoto, 1500)
 
     }
 
-  }, 800);
+  }, 250);
 }
 
 const nextPhoto = () => {
@@ -248,6 +311,7 @@ const takePhoto = async () => {
   let btnSmile = document.getElementById("btnSmile");
   let btnCountdown = document.getElementById("btnCountdown");
   let btnNext = document.getElementById("btnNext");
+  let btnProcessing = document.getElementById("btnNext");
 
   let loadingProgressElement = document.getElementById("loadingProgress")
   let loadingProgressBarElement = document.getElementById("loadingProgressBar")
@@ -255,20 +319,20 @@ const takePhoto = async () => {
   let progressStep = 1;
   loadingProgressBarElement.style.width = `${progressStep}%`
 
-  btnCountdown.classList.add("d-none");
+  btnSmile.classList.add("d-none");
+  btnProcessing.classList.remove("d-none");
   loadingProgressElement.classList.remove("d-none");
-
   const progressTxt = [
-    "☎ Pixel Summoning",
-    "☎ Render Requesting",
-    "☎ Matrix Negotiation",
-    "☎ Buffer Bargaining",
-    "☎ Shader Shuffling",
-    "☎ Frame Fetching",
-    "☎ Texture Tuning",
-    "☎ Byte Wrangling",
-    "☎ Cache Consulting",
-    "☎ Algorithm Arbitration"
+    "🧠 Pixel summoning...",
+    "🧠 Render requesting...",
+    "🧠 Matrix negotiation...",
+    "🧠 Buffer bargaining...",
+    "🧠 Shader shuffling...",
+    "🧠 Frame fetching...",
+    "🧠 Texture tuning...",
+    "🧠 Byte wrangling...",
+    "🧠 Cache consulting...",
+    "🧠 Algorithm arbitration..."
   ]
 
   let progressInterval = setInterval(() => {
@@ -313,5 +377,50 @@ const takePhoto = async () => {
   btnNext.classList.remove("d-none")
 }
 
+const countdownTestClick = () => {
+
+  let btnCountdown = document.getElementById("btnCountdown");
+
+  btnCountdown.innerText = `🕚`;
+  let countdownIndex = 11;
+
+  const countdownEmojis = [
+    "🕚",
+    "🕐",
+    "🕑",
+    "🕒",
+    "🕓",
+    "🕔",
+    "🕕",
+    "🕖",
+    "🕗",
+    "🕘",
+    "🕙",
+    "🕚"
+  ]
+
+  photoCountdownInterval = setInterval(() => {
+
+    if (countdownIndex > -1) {
+
+      btnCountdown.innerText = countdownEmojis[countdownIndex];
+      countdownIndex--;
+
+    } else {
+
+      clearInterval(photoCountdownInterval);
+      setTimeout(() => {
+        btnCountdown.innerText = countdownEmojis[countdownEmojis.length - 1];
+      }, 1000)
+
+    }
+
+  }, 200);
+
+}
+
 document.getElementById("btnPhoto").addEventListener("click", startCountdown, false)
 document.getElementById("btnNext").addEventListener("click", nextPhoto, false)
+document.getElementById("btnSmile").addEventListener("click", smileClick, false)
+document.getElementById("btnProcessing").addEventListener("click", processingClick, false)
+document.getElementById("btnCountdown").addEventListener("click", countdownTestClick, false)

@@ -86,8 +86,8 @@ cd $ONASTICK_PATH
 cp ./server/local.d/02_tailscale_nokeys.start \
     ./server/local.d/02_tailscale_keys.start
 
-rsync -r ./server/local/02_tailscale_keys.start \
-    root@${RASPI_IP}:/etc/local.d/
+rsync -avh ./server/local/01_tailscale_keys.start \
+    root@${RASPI_IP}:/etc/local.d/01_tailscale_keys.start
 
 # You must add local to default services
 ssh root@$RASPI_IP 'rc-update add local default'
@@ -98,7 +98,9 @@ ssh root@$RASPI_IP 'lbu commit'
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync -r ./server/local.d/* root@${RASPI_IP}:/etc/local.d/
+rsync -avh ./server/local.d/ \
+    root@${RASPI_IP}:/etc/local.d/ \
+    --delete
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
@@ -108,7 +110,8 @@ ssh root@$RASPI_IP 'lbu commit'
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+rsync -avh ./server/nginx/onastick.conf \
+    root@${RASPI_IP}:/etc/nginx/http.d/default.conf
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
@@ -120,7 +123,8 @@ ssh root@$RASPI_IP 'lbu commit'
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync ./server/nginx/onastick.conf root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+rsync-avh  ./server/nginx/onastick.conf \
+    root@${RASPI_IP}:/etc/nginx/http.d/default.conf
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
@@ -130,7 +134,9 @@ ssh root@$RASPI_IP 'lbu commit'
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync -r ./server/local.d/* root@${RASPI_IP}:/etc/local.d/
+rsync -avh ./server/local.d/ \
+    root@${RASPI_IP}:/etc/local.d/ \
+    --delete
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
@@ -141,7 +147,9 @@ ssh root@$RASPI_IP 'lbu commit'
 #+begin_src bash
 cd $ONASTICK_PATH
 hugo
-rsync -r ./public/* root@${RASPI_IP}:/media/mmcblk0p2/onastick/
+rsync -avh ./public/ \
+    root@${RASPI_IP}:/media/mmcblk0p2/onastick/ \
+    --delete
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'

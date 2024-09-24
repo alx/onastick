@@ -6,9 +6,17 @@
 "... a powerful system integrating Raspberry Pi with Alpine Linux, Tailscale networking, and PaperMod theming for seamless remote access and streamlined hardware management. The project offers easy-to-follow scripts for setting up services, maintaining remote systems, and deploying web interfaces, with robust support for GPU-based operations on the A1111 Forge. Ideal for developers looking to optimize IoT and edge computing solutions while ensuring scalable network security and performance." --- GPT 4o
 #+end_quote
 
+** News
+
+*** 202409 - fieldtest
+
+- [[./static/docs/202409_beach.jpeg]]
+- [[./static/docs/202409_zoom.jpeg]]
+- [[./static/docs/202409_UI.jpeg]]
+
 ** Hardware stack
 
-[[./static/hardware_setup_202409.jpeg]]
+[[./static/docs/202409_hardware_setup.jpeg]]
 
 *** Current stack - 202409
 
@@ -30,7 +38,7 @@
 
 ** Network
 
-[[./static/network_diagram_202409.png]]
+[[./static/docs/202409_network_diagram.png]]
 
 ** Dev Setup
 

@@ -10,9 +10,11 @@
 
 *** 202409 - fieldtest
 
-- [[./static/docs/202409_beach.jpeg]]
-- [[./static/docs/202409_zoom.jpeg]]
-- [[./static/docs/202409_UI.jpeg]]
+[[./static/docs/202409_beach.jpeg]]
+
+[[./static/docs/202409_zoom.jpeg]]
+
+[[./static/docs/202409_UI.jpeg]]
 
 ** Hardware stack
 

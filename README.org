@@ -35,15 +35,22 @@
 - 1x eth cable : router - raspi
 - not visible: hosted gpu running sd
 
+#+html: <details><summary>
 *** Future stack
+#+html: </summary>
 
 - RaspberryPi 3+: remove router and 2x cables
 - instax printer: real life result
 - big red button: tangible UI, no screen
 
+#+html: </details>
+#+html: <details><summary>
 *** Forgotten stack
+#+html: </summary>
 
 - 202409: router is on battery - 1x USB-B - USB-C cable: battery - router
+
+#+html: </details>
 
 ** Network
 
@@ -52,22 +59,29 @@
 ** Dev Setup
 
 #+begin_src bash
-export ONASTICK_PATH=/home/alx/www/onastick/
+export DEV_PATH=/home/alx/www/onastick/
 export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
+
 export RASPI_IP=192.168.8.178
+export RASPI_HOSTNAME='alpine'
 #+end_src
 
+#+html: <details><summary>
 *** Clone repository
+#+html: </summary>
 
 #+BEGIN_SRC bash
-mkdir -p $ONASTICK_PATH
+mkdir -p $DEV_PATH
 git clone https://github.com/alx/onastick.git
 #+END_SRC
 
+#+html: </details>
+#+html: <details><summary>
 *** Install PaperMod Theme
+#+html: </summary>
 
 #+BEGIN_SRC bash
-cd $ONASTICK_PATH
+cd $DEV_PATH
 git submodule add --depth=1 https://github.com/adityatelange/hugo-PaperMod.git themes/PaperMod
 
 # needed when you reclone your repo (submodules may not get cloned automatically)
@@ -75,15 +89,20 @@ git submodule update --init --recursive
 #+END_SRC
 
 [[https://github.com/adityatelange/hugo-PaperMod][PaperMod Github]]
+#+html: </details>
 
 *** Alpine
 
+#+html: <details><summary>
 **** APK packages
+#+html: </summary>
 
 #+begin_src bash
 ssh root@$RASPI_IP <<'EOL'
         apk add mjpeg-streamer \
         nginx \
+        nginx-mod-rtmp \
+        ffmpeg \
         tailscale \
         vim
 EOL
@@ -92,7 +111,10 @@ EOL
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
+#+html: </details>
+#+html: <details><summary>
 **** Tailscale auth key
+#+html: </summary>
 
 1. Create a *reusable* auth key on Tailscale admin website: https://login.tailscale.com/admin/settings/keys
 2. Copy auth key in ~./server/local.d/02_tailscale_keys.start~
@@ -111,7 +133,10 @@ ssh root@$RASPI_IP 'rc-update add local default'
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
+#+html: </details>
+#+html: <details><summary>
 **** Install other startup scripts
+#+html: </summary>
 
 #+begin_src bash
 cd $ONASTICK_PATH
@@ -123,16 +148,52 @@ rsync -avh ./server/local.d/ \
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
+#+html: </details>
+#+html: <details><summary>
 **** Install nginx configuration
+#+html: </summary>
 
 #+begin_src bash
 cd $ONASTICK_PATH
+
+# nginx.conf
+rsync -avh ./server/nginx/nginx.conf \
+    root@${RASPI_IP}:/etc/nginx/nginx.conf
+
+# http.d/default.conf
 rsync -avh ./server/nginx/onastick.conf \
     root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+
+# restart nginx service
+ssh root@$RASPI_IP rc-service nginx restart
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
+
+#+html: </details>
+#+html: <details><summary>
+**** Stream
+#+html: </summary>
+
+#+begin_src bash
+ffmpeg \
+    -f v4l2 \
+    -framerate 30 \
+    -video_size 176x144 \
+    -input_format yuyv422 \
+    -i /dev/video0 \
+    -f hls \
+    -c:v libx264 \
+    -b:v 5000k \
+    -hls_time 6 \
+    -hls_list_size 10 \
+    -hls_delete_threshold 1 \
+    -hls_flags delete_segments \
+    /mnt/hls/stream.m3u8
+#+end_src
+
+#+html: </details>
 
 ** Maintenance
 
@@ -174,7 +235,7 @@ ssh root@$RASPI_IP 'lbu commit'
 
 ** Start website
 
-*** On GPU laptop
+*** GPU laptop: start A1111 on tailscale network
 
 **** Start A1111 Forge:
 
@@ -191,31 +252,53 @@ export COMMANDLINE_ARGS="--api"
 tailscale serve --http 80 7860
 #+end_src
 
-** Run setup
-
-*** connect router to WAN
+*** Router: connect to WAN
 
 - current method is to configure a wifi hotspot on a 4g phone
 - open router admin and connect to wifi hotspot
 - network will be shared to raspberry
 
-*** connect raspberry pi to tailscale network
+*** RASPI: find and connect to tailscale network
 
-- ssh into the raspberry, and serve nginx port 80 to other machines on tailnet (phone for example to access UI):
+- find ~$RASPI~ on tailscale network
 
   #+begin_src bash
-tailscale serve --port 80 80
+export RASPI_HOSTNAME='alpine'
+
+# Run tailscale status and filter for RASPI_HOSTNAME that is online
+online_alpine=$(tailscale status | grep $RASPI_HOSTNAME | grep -E '\s+-$')
+
+# Check if any online Alpine computers were found
+if [ -z "$online_alpine" ]; then
+  echo "No online Alpine computers found."
+fi
+
+# Extract the IP address of the first online Alpine computer
+RASPI_IP=$(echo "$online_alpine" | awk '{print $1}')
+
+# Display the IP address of the Alpine computer to connect to
+echo "RASPI_IP: $ip_address"
   #+end_src
 
-- ~--port 80~ is used to avoid SSL handshake issues
+- serve nginx port 80 to other machines on tailnet (phone for example to access UI):
 
-- use the url given as the result of tailscale command to connect to UI and control setup
+  #+begin_src bash
+ssh root@$RASPI_IP <<'EOL'
+    tailscale serve --port 80 80
+EOL
+  #+end_src
+
+- ~--port 80~ is used to avoid SSL handshake issues on ~RASPI~ nginx
+
+- open browser: http://$RASPI_IP
 
 ** Specifications
 
 Compute dimensions of various elements
 
+#+html: <details><summary>
 *** UI Display
+#+html: </summary>
 **** top image
 
 USB webcam provide 16:9 format at 360p, image is 640x360px
@@ -239,3 +322,43 @@ The bottom image dimension is 1080x1080px
 **** button
 
 Button must be placed on middle section center
+
+#+html: </details>
+#+html: <details><summary>
+*** webcam formats
+#+html: </summary>
+
+#+begin_src bash
+ffmpeg -f video4linux2 -list_formats all -i /dev/video0
+ffmpeg version 6.1.1 Copyright (c) 2000-2023 the FFmpeg developers
+...
+[video4linux2,v4l2 @ 0x728a7cc0] Raw       :     yuyv422 :           YUYV 4:2:2 : 640x480 160x120 176x144 320x176 320x240 352x288 432x240 544x288 640x360 752x416 800x448 800x600 864x480 960x544 960x720 1024x576 1184x656 1280x720 1280x960
+[video4linux2,v4l2 @ 0x728a7cc0] Compressed:       mjpeg :          Motion-JPEG : 640x480 160x120 176x144 320x176 320x240 352x288 432x240 544x288 640x360 752x416 800x448 800x600 864x480 960x544 960x720 1024x576 1184x656 1280x720 1280x960
+#+end_src
+#+html: </details>
+
+** FAQ, debugging steps
+
+#+html: <details><summary>
+*** nginx is not started
+#+html: </summary>
+**** verify nginx status on raspi
+
+#+begin_src bash
+$ ssh root@$RASPI_IP tail /var/log/nginx/error.log
+2024/04/08 13:08:24 [emerg] 2320#2320: host not found in upstream "slim.tail6a160.ts.net" in /etc/nginx/http.d/default.conf:31
+#+end_src
+
+***** solution: tailscale is not started on gpu hosted machines
+
+****** run Stability.app on GPU hosted machine terminal
+
+****** "Launch" Stable diffusion webui
+******* only need ~--api~ flag in configuration
+
+****** restart nginx server
+#+begin_src bash
+ssh root@$RASPI_IP rc-service nginx restart
+#+end_src
+
+#+html: </details>

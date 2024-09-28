@@ -8,6 +8,10 @@
 
 ** News
 
+*** 202409 - UI
+
+[[./static/docs/202409_UI_vertical.jpeg]]
+
 *** 202409 - fieldtest
 
 [[./static/docs/202409_beach.jpeg]]

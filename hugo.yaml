@@ -24,11 +24,11 @@ params:
     #
     # - Default mjpeg-stream api endpoint:
     #
-    # srcStream: "/stream"
+    srcStream: "/stream"
     #
     # - Test stream as static image when mjpeg-streamer
     # not available on network:
     #
-    srcStream: "/test/input.jpg"
-    srcResult: "/test/output.jpg"
+    # srcStream: "/test/input.jpg"
+    # srcResult: "/test/output.jpg"
     #

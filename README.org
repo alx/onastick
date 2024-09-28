@@ -28,7 +28,6 @@
 - 4G wifi router, GL-iNet GL-XE300
 - PowerBank 2000mAh 5V Power Bank, Varta 57962
 - 1x USB-B - USB-micro cable: battery - raspi
-- 1x USB-B - USB-C cable: battery - router
 - 1x eth cable : router - raspi
 - not visible: hosted gpu running sd
 
@@ -37,6 +36,10 @@
 - RaspberryPi 3+: remove router and 2x cables
 - instax printer: real life result
 - big red button: tangible UI, no screen
+
+*** Forgotten stack
+
+- 202409: router is on battery - 1x USB-B - USB-C cable: battery - router
 
 ** Network
 
@@ -183,3 +186,52 @@ export COMMANDLINE_ARGS="--api"
 #+begin_src bash
 tailscale serve --http 80 7860
 #+end_src
+
+** Run setup
+
+*** connect router to WAN
+
+- current method is to configure a wifi hotspot on a 4g phone
+- open router admin and connect to wifi hotspot
+- network will be shared to raspberry
+
+*** connect raspberry pi to tailscale network
+
+- ssh into the raspberry, and serve nginx port 80 to other machines on tailnet (phone for example to access UI):
+
+  #+begin_src bash
+tailscale serve --port 80 80
+  #+end_src
+
+- ~--port 80~ is used to avoid SSL handshake issues
+
+- use the url given as the result of tailscale command to connect to UI and control setup
+
+** Specifications
+
+Compute dimensions of various elements
+
+*** UI Display
+**** top image
+
+USB webcam provide 16:9 format at 360p, image is 640x360px
+
+On a vertical screen, Youtube Short reference format is vertical 16:9 at 1920x1080 resolution
+
+To reduce stream bandwith, /mjpg-streamer/ should send 640x360px.
+It should be reduced even more to avoid network over-usage.
+
+On a 1080px width viewport, top image size is 1080x750px
+
+**** middle section
+
+110px toolbar
+
+**** bottom image
+
+The bottom image height is (1920-(750 + 110))px = 1080px
+
+The bottom image dimension is 1080x1080px
+**** button
+
+Button must be placed on middle section center

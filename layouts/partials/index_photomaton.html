@@ -1,30 +1,81 @@
-<div class="container-fluid">
+  <div id="photomaton" class="container-fluid">
+    <div id="photoRowTop" class="row">
 
-  <div
-    id="loadingProgress"
-    class="progress mb-2 d-none"
-    style="height:20px;"
-    >
-    <div
-      id="loadingProgressBar"
-      class="progress-bar bg-dark progress-bar-striped progress-bar-animated"
-      style="width:0%;"
-      >
-      🧠 Calling IA...
+      <!-- Top Row with Image -->
+      <div id ="stream" class="col-12 full-height">
+        <img
+          id="photoStream"
+          src="{{ .Site.Params.photomatonMode.srcStream }}"
+          class="img-fluid full-image"
+          />
+      </div>
+
+    </div>
+    <div  id="photoRowBottom" class="row">
+
+      <!-- Bottom Row with Image and Button -->
+      <div class="col-12 full-height position-relative" id="intro">
+        <img
+          id="photoBottom"
+          src="{{ .Site.Params.photomatonMode.srcResult }}"
+          class="img-fluid full-image"
+          />
+
+        <a
+            id="btnPhoto"
+            class="btn btn-light btn-lg btn-bottom"
+            role="button"
+            href="#"
+            >
+            📷
+        </a>
+
+        <a
+            id="btnCountdown"
+            class="btn btn-warning btn-lg fs-1 d-none btn-bottom"
+            role="button"
+            href="#"
+            >
+            🕚
+        </a>
+
+        <a
+            id="btnSmile"
+            class="btn btn-success btn-lg fs-1 d-none btn-bottom"
+            role="button"
+            href="#"
+            >
+            🥰
+        </a>
+
+        <a
+            id="btnProcessing"
+            class="btn btn-dark btn-lg fs-1 d-none btn-bottom"
+            role="button"
+            href="#"
+            >
+            🧠
+        </a>
+
+        <a
+            id="btnError"
+            class="btn btn-danger btn-lg fs-1 d-none btn-bottom"
+            role="button"
+            href="#"
+            >
+            🤔
+        </a>
+
+        <a
+            id="btnNext"
+            class="btn btn-secondary btn-lg fs-1 d-none btn-bottom"
+            role="button"
+            href="#"
+            >
+            🔄
+        </a>
+
+      </div>
+
     </div>
   </div>
-
-  <div id="output" class="row">
-    <div id="resultSrc"></div>
-    <div id="resultOutput"></div>
-  </div>
-
-  <div id="stream" class="row" style="overflow: hidden;">
-    <img
-      id="photoStream"
-      src="{{ .site.Params.photomatonMode.srcStream }}"
-      class="img-fluid"
-      />
-  </div>
-
-</div>

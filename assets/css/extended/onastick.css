@@ -1,11 +1,46 @@
 body {
-    background: #b4bbc3 !important;
+    background: #111 !important;
 }
 
-header img {
-    max-width: 150px;
+.main {
+    padding: 0 !important;
+    width: 1080px;
 }
 
-header a.btn {
-    width: 150px;
+/* Full height of each row taking 50vh */
+.full-height {
+}
+
+/* Make the images fill their containers */
+.full-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#photoRowTop {
+  height: 33vh;
+}
+
+#photoRowBottom {
+  height: 66vh;
+}
+
+/* Position the button at the bottom of the second image */
+.btn-bottom {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+
+  font-size: 50px !important;
+  border: 3px solid #FFF;
+  -webkit-box-shadow: 0 0 10px #000;
+  box-shadow: 0 0 10px #000;
+}
+
+#btnCountdown {
+    color: darkred;
+    font-weight: bold;
 }

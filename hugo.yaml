@@ -3,19 +3,13 @@ languageCode: en-us
 title: IA on a Stick
 theme: ["PaperMod"]
 params:
-
+  hideFooter: true
   disableThemeToggle: true
-
   customJS: [
     "js/main.js"
   ]
-
-  profileMode:
-    enabled: false
-
   photomatonMode:
     enabled: true
-
     #
     # Stream URL
     #
@@ -35,6 +29,6 @@ params:
     # - Test stream as static image when mjpeg-streamer
     # not available on network:
     #
-    # srcStream: "/stream_test.jpg"
+    srcStream: "/test/input.jpg"
+    srcResult: "/test/output.jpg"
     #
-    srcStream: "/stream"

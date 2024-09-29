@@ -1,2 +1,2 @@
 #!/bin/sh
-mjpg_streamer -i input_uvc.so
+ffmpeg -f v4l2 -framerate 30 -video_size 176x144 -input_format yuyv422 -i /dev/video0 -ar 44100 -ac

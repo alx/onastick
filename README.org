@@ -201,8 +201,11 @@ ffmpeg \
 
 #+begin_src bash
 cd $ONASTICK_PATH
-rsync-avh  ./server/nginx/onastick.conf \
+rsync -avh  ./server/nginx/onastick.conf \
     root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+
+# restart nginx service
+ssh root@$RASPI_IP rc-service nginx restart
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'

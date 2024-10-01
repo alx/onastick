@@ -17,20 +17,20 @@
       <div class="col position-relative" id="intro">
 
         <img
-          id="photoBottom"
-          src="{{ .Site.Params.photomatonMode.srcResult }}"
-          class="img-fluid"
-          />
-
-        <img
           id="photoBottomPlaceholder"
           src="{{ .Site.Params.photomatonMode.srcResultPlaceholder }}"
-          class="img-fluid d-none"
+          class="img-fluid"
           />
 
         <img
           id="photoBottomProcessing"
           src="{{ .Site.Params.photomatonMode.srcProcessingPlaceholder }}"
+          class="img-fluid d-none"
+          />
+
+        <img
+          id="photoBottom"
+          src="{{ .Site.Params.photomatonMode.srcResult }}"
           class="img-fluid d-none"
           />
 
@@ -80,12 +80,12 @@
         </a>
 
         <a
-            id="btnNext"
+            id="btnQrcode"
             class="btn btn-secondary btn-lg fs-1 d-none btn-bottom"
             role="button"
             href="#"
             >
-            🔄
+            Open QRCode modal
         </a>
 
       </div>

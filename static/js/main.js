@@ -216,12 +216,7 @@ const sdApiRequest = async (inputImgBase64) => {
     }
   })
   const outputJson = await response.json();
-  const base64Img = outputJson.images[0]
-
-  var image = new Image();
-  image.src = `data:image/png;base64,${base64Img}`;
-
-  return image;
+  return outputJson.images[0]
 }
 
 const startCountdown = () => {
@@ -276,53 +271,24 @@ const startCountdown = () => {
   }, 250);
 }
 
-const nextPhoto = () => {
-
-  let btnPhoto = document.getElementById("btnPhoto");
-  let btnError = document.getElementById("btnError");
-  let btnNext = document.getElementById("btnNext");
-
-  let divStream = document.getElementById("stream");
-  let divOutput = document.getElementById("output");
-
-  btnNext.classList.add("d-none")
-  btnPhoto.classList.remove("d-none")
-
-  divOutput.classList.add("d-none")
-  divStream.classList.remove("d-none")
-
-}
-
 const takePhoto = async () => {
+
+  let imgElementTop = document.getElementById("photoStream")
+
+  let imgElementBottom = document.getElementById("photoBottom")
+  let imgElementPlaceholder = document.getElementById("photoBottomPlaceholder")
+  let imgElementProcessing = document.getElementById("photoBottomProcessing")
 
   let btnSmile = document.getElementById("btnSmile");
   let btnCountdown = document.getElementById("btnCountdown");
   let btnError = document.getElementById("btnError");
-  let btnNext = document.getElementById("btnNext");
   let btnProcessing = document.getElementById("btnProcessing");
-
-  let loadingProgressElement = document.getElementById("loadingProgress")
-  let loadingProgressBarElement = document.getElementById("loadingProgressBar")
-
-  let resultSrcElement = document.getElementById("resultSrc")
-  let resultOutputElement = document.getElementById("resultOutput")
-
-  // Hide Stream
-  let divStream = document.getElementById("stream");
-  divStream.classList.add("d-none")
-
-  // Prepare results
-  resultSrcElement.replaceChildren();
-  resultOutputElement.replaceChildren();
-  resultOutputElement.classList.remove("col");
 
   // Hide smile button and show progress
   btnSmile.classList.add("d-none");
   btnProcessing.classList.remove("d-none");
-  loadingProgressElement.classList.remove("d-none");
 
   let progressStep = 1;
-  loadingProgressBarElement.style.width = `${progressStep}%`
 
   const progressTxt = [
     "🧠 Pixel summoning...",
@@ -337,25 +303,21 @@ const takePhoto = async () => {
     "🧠 Algorithm arbitration..."
   ]
 
-  let progressInterval = setInterval(() => {
+  const progressChangeText = () => {
+    progressStep += 1;
 
-    if (progressStep < 100) {
-
-      progressStep += 1;
-      loadingProgressBarElement.style.width = `${progressStep}%`
-
-      if (progressStep % 10 === 0) {
-        const selectedTxt = progressTxt[Math.floor(Math.random() * progressTxt.length)]
-        loadingProgressBarElement.innerHTML = selectedTxt
-      }
-
-    } else {
-
-      clearInterval(progressInterval);
-
+    if (progressStep % 10 === 0) {
+      const randProgressIndex = Math.floor(
+        Math.random() * progressTxt.length
+      )
+      const randText = progressTxt[randProgressIndex]
+      btnProcessing.innerHTML = randText
     }
-
-  }, 300);
+  }
+  let progressInterval = setInterval(
+    progressChangeText,
+    200
+  )
 
   try {
 
@@ -363,21 +325,22 @@ const takePhoto = async () => {
 
     // Get source image
     const sourceImgHTMLElement = await getImgSource(CAMERA_CURRENT_URL)
-    sourceImgHTMLElement.classList.add("img-fluid");
-    resultSrcElement.appendChild(sourceImgHTMLElement);
+
+    // Get base64 image
+    const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
+    imgElementTop.src = `data:image/png;base64,${inputImgBase64}`
+
+    imgElementPlaceholder.classList.add("d-none")
+    imgElementProcessing.classList.remove("d-none")
 
     // Transform source image
-    const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
-    const outputImgHTMLElement = await sdApiRequest(inputImgBase64);
+    const outputImgBase64 = await sdApiRequest(inputImgBase64);
+    imgElementBottom.src = `data:image/png;base64,${outputImgBase64}`
 
-    // Display transformed image
-    outputImgHTMLElement.classList.add("img-fluid");
-    resultOutputElement.appendChild(outputImgHTMLElement);
+    imgElementProcessing.classList.add("d-none")
+    imgElementBottom.classList.remove("d-none")
 
-    // Remove processing and show next
-    btnProcessing.classList.add("d-none");
-    loadingProgressElement.classList.add("d-none");
-    btnNext.classList.remove("d-none")
+    btnQrcode.classList.remove("d-none");
 
   } catch ({name, message}) {
 
@@ -386,10 +349,12 @@ const takePhoto = async () => {
     console.log(message);
 
     // Remove processing and show error
-    btnProcessing.classList.add("d-none");
-    loadingProgressElement.classList.add("d-none");
     btnError.classList.remove("d-none")
-    divStream.classList.remove("d-none")
+
+  } finally {
+
+    clearInterval(progressInterval);
+    btnProcessing.classList.add("d-none");
 
   }
 
@@ -438,7 +403,6 @@ const countdownTestClick = () => {
 }
 
 document.getElementById("btnPhoto").addEventListener("click", startCountdown, false)
-document.getElementById("btnNext").addEventListener("click", nextPhoto, false)
 document.getElementById("btnSmile").addEventListener("click", smileClick, false)
 document.getElementById("btnProcessing").addEventListener("click", processingClick, false)
 document.getElementById("btnCountdown").addEventListener("click", countdownTestClick, false)

@@ -1,2 +1,0 @@
-#!/bin/sh
-mjpg_streamer -i input_uvc.so

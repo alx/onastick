@@ -58,6 +58,7 @@
 
 ** Dev Setup
 
+#+NAME: init_var
 #+begin_src bash
 export DEV_PATH=/home/alx/www/onastick/
 export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
@@ -117,14 +118,17 @@ ssh root@$RASPI_IP 'lbu commit'
 #+html: </summary>
 
 1. Create a *reusable* auth key on Tailscale admin website: https://login.tailscale.com/admin/settings/keys
-2. Copy auth key in ~./server/local.d/02_tailscale_keys.start~
-3. Update local.d script on raspberry pi:
+2. Copy auth key in ~./server/local.d/01_tailscale_keys.start~
 
 #+begin_src bash
 cd $ONASTICK_PATH
-cp ./server/local.d/02_tailscale_nokeys.start \
-    ./server/local.d/02_tailscale_keys.start
+cp ./server/local.d/01_tailscale_nokeys.start \
+    ./server/local.d/01_tailscale_keys.start
+#+end_src
 
+3. Update local.d script on raspberry pi:
+
+#+begin_src bash
 rsync -avh ./server/local/01_tailscale_keys.start \
     root@${RASPI_IP}:/etc/local.d/01_tailscale_keys.start
 
@@ -154,6 +158,7 @@ ssh root@$RASPI_IP 'lbu commit'
 #+html: </summary>
 
 #+begin_src bash
+<<init_var>>
 cd $ONASTICK_PATH
 
 # nginx.conf

@@ -15,10 +15,23 @@
 
       <!-- Bottom Row with Image and Button -->
       <div class="col position-relative" id="intro">
+
         <img
           id="photoBottom"
           src="{{ .Site.Params.photomatonMode.srcResult }}"
           class="img-fluid"
+          />
+
+        <img
+          id="photoBottomPlaceholder"
+          src="{{ .Site.Params.photomatonMode.srcResultPlaceholder }}"
+          class="img-fluid d-none"
+          />
+
+        <img
+          id="photoBottomProcessing"
+          src="{{ .Site.Params.photomatonMode.srcProcessingPlaceholder }}"
+          class="img-fluid d-none"
           />
 
         <a

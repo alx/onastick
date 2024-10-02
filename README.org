@@ -129,7 +129,7 @@ cp ./server/local.d/01_tailscale_nokeys.start \
 3. Update local.d script on raspberry pi:
 
 #+begin_src bash
-rsync -avh ./server/local/01_tailscale_keys.start \
+rsync -avh ./server/local.d/01_tailscale_keys.start \
     root@${RASPI_IP}:/etc/local.d/01_tailscale_keys.start
 
 # You must add local to default services

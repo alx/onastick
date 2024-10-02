@@ -1,4 +1,10 @@
 #!/bin/sh
 tailscale up \
     --hostname alpine \
-	--auth-key  tskey-auth-kTBE7hvmhM11CNTRL-zNT7SNb9zz4HfcSGHdMh15cSnoMDffyoR
+    --auth-key  tskey-auth-secret-key
+
+# nginx is dependent on tailscale hosted machine
+# it'd [emerg] error on start
+#
+# once tailscale network is ready, start nginx again
+rc-service nginx start

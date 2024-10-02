@@ -1,2 +1,2 @@
 #!/bin/sh
-mjpg_streamer "input_uvc.so --resolution 176x144"
+mjpg_streamer -i "input_uvc.so --resolution 176x144"

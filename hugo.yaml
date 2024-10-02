@@ -40,7 +40,7 @@ params:
     #
     # use this image as a placeholder for main screen
     #
-    srcResultPlaceholder: "/result_placeholder.jpg"
+    srcPlaceholder: "/placeholder.jpg"
     #
     # ====
     #
@@ -48,4 +48,4 @@ params:
     #
     # use this image as a placeholder for processing screen
     #
-    srcProcessingPlaceholder: "/processing_placeholder.jpg"
+    srcProcessing: "/processing.jpg"

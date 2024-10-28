@@ -240,7 +240,7 @@ ssh root@$RASPI_IP 'lbu commit'
 
 ** Start website
 
-*** GPU laptop: start A1111 on tailscale network
+*** GPU laptop: A1111 webui.sh on tailscale network
 
 **** Start A1111 Forge:
 
@@ -367,3 +367,14 @@ ssh root@$RASPI_IP rc-service nginx restart
 #+end_src
 
 #+html: </details>
+
+*** POST /gpu/sdapi/v1/txt2img [HTTP/1.1 502 Bad Gateway 55ms]
+
+- gpu machine is not connected on tailnet.
+- a1111 server is not started, could have crash and need to be started again
+
+See: [[GPU laptop: A1111 webui.sh on tailscale network]]
+
+#+begin_src bash
+tailscale serve --http 80 7860
+#+end_src

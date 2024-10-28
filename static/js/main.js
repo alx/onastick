@@ -64,25 +64,31 @@ const getImgSource = async (url) => {
 
 }
 
-const getImgBase64 = async (imgHTMLElement) => {
+const getImgBase64 = async (img) => {
 
   let dataURL;
 
   try {
 
-    let canvas = document.createElement('CANVAS');
-    canvas.width = 512;
-    canvas.height = 512;
+    let canvas = document.createElement('CANVAS', {antialias: false});
+    canvas.width = 1024;
+    canvas.height = 1024;
 
     let ctx = canvas.getContext('2d');
-    ctx.drawImage(imgHTMLElement,
-                  // SOURCE X, Y, WIDTH, HEIGHT
-                  // 512 + 64x2 margin = 640
-                  64, 0, 512, 480,
-                  // DESTINATION X, Y, WIDTH, HEIGHT
-                  // 512 - 480 = 32, remove 16px each side
-                  0, -16, 512, 512
-                 )
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+
+    const hRatio = canvas.width  / img.width    ;
+    const vRatio =  canvas.height / img.height  ;
+    const ratio  = Math.max ( hRatio, vRatio );
+    const centerShift_x = ( canvas.width - img.width*ratio ) / 2;
+    const centerShift_y = ( canvas.height - img.height*ratio ) / 2;
+
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.drawImage(img, 0,0, img.width, img.height,
+                      centerShift_x,centerShift_y,img.width*ratio, img.height*ratio);
 
     dataURL = await canvas.toDataURL();
 
@@ -95,11 +101,46 @@ const getImgBase64 = async (imgHTMLElement) => {
   return new Promise(resolve => resolve(dataURL));
 }
 
-const sdApiRequest = async (inputImgBase64) => {
+const interrogatorApiRequest = async (inputImgBase64) => {
+
+  const SERVER_API_ENDPOINT = "/gpu/interrogator/prompt";
+
+  const interrogatorParams = {
+    "image": inputImgBase64,
+    "clip_model_name": "RN50/openai",
+    "mode": "fast"
+  }
+
+  console.log(interrogatorParams)
+
+  const response = await fetch(SERVER_API_ENDPOINT, {
+    method: "POST",
+    body: JSON.stringify(interrogatorParams),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  })
+  const outputJson = await response.json();
+  console.log(outputJson)
+  const response_prompt = outputJson["prompt"]
+
+  let result = "";
+
+  // return first result from list
+  if(response_prompt.indexOf("Exception") === -1) {
+    result = response_prompt.split(',')[0]
+  }
+
+  return result;
+}
+
+const txt2imgApiRequest = async (inputImgBase64) => {
 
   const SERVER_API_ENDPOINT = "/gpu/sdapi/v1/txt2img";
 
-  const prompt = "(esoteric magicians:1.1) on an (exoplanet:1.1) point of view during sunrise, simple outlined illustration, beachy colors, <lora:sd_xl_turbo_lora_v1:1>, (dali style:1.3)";
+  const interrogator_prompt = await interrogatorApiRequest(inputImgBase64)
+
+  const prompt = interrogator_prompt + ", A black and white vintage, timeworn family photograph from 1890, rural clothing, ultra-detailed, 8k, slightly sepia tone";
   const negative_prompt = "text, bad art, blurry, watermark, person, tripod, letters, ugly, deformed, glasses";
 
   const controlNetParams = [
@@ -110,7 +151,7 @@ const sdApiRequest = async (inputImgBase64) => {
       "batch_mask_gallery": null,
       "control_mode": "Balanced",
       "enabled": true,
-      "guidance_end": 1.0,
+      "guidance_end": 0.8,
       "guidance_start": 0.0,
       "hr_option": "Both",
       "image": inputImgBase64,
@@ -122,57 +163,8 @@ const sdApiRequest = async (inputImgBase64) => {
       "processor_res": 512,
       "resize_mode": "Crop and Resize",
       "save_detected_map": true,
-      "threshold_a": 30,
-      "threshold_b": 158,
-      "use_preview_as_input": false,
-      "weight": 1.2
-    },
-    {
-      "batch_image_dir": "",
-      "batch_input_gallery": null,
-      "batch_mask_dir": "",
-      "batch_mask_gallery": null,
-      "control_mode": "Balanced",
-      "enabled": true,
-      "guidance_end": 1.0,
-      "guidance_start": 0.0,
-      "hr_option": "Both",
-      "image": inputImgBase64,
-      "mask_image": null,
-      "mask_image_fg": null,
-      "model": "thibaud_xl_openpose_256lora [14288071]",
-      "module": "openpose_full",
-      "pixel_perfect": false,
-      "processor_res": 512,
-      "resize_mode": "Crop and Resize",
-      "save_detected_map": true,
-      "threshold_a": 0.5,
-      "threshold_b": 0.5,
-      "use_preview_as_input": false,
-      "weight": 1
-    },
-    {
-      "batch_image_dir": "",
-      "batch_input_gallery": null,
-      "batch_mask_dir": "",
-      "batch_mask_gallery": null,
-      "control_mode": "Balanced",
-      "enabled": true,
-      "generated_image": null,
-      "guidance_end": 1.0,
-      "guidance_start": 0.0,
-      "hr_option": "Both",
-      "image": inputImgBase64,
-      "mask_image": null,
-      "mask_image_fg": null,
-      "model": "instantIDSDXL_ipAdapterInstantId [eb2d3ec0]",
-      "module": "InsightFace (InstantID)",
-      "pixel_perfect": false,
-      "processor_res": 0.5,
-      "resize_mode": "Crop and Resize",
-      "save_detected_map": true,
-      "threshold_a": 0.5,
-      "threshold_b": 0.5,
+      "threshold_a": 100,
+      "threshold_b": 200,
       "use_preview_as_input": false,
       "weight": 1.2
     }
@@ -183,12 +175,14 @@ const sdApiRequest = async (inputImgBase64) => {
     "prompt": prompt,
     "negative_prompt": negative_prompt,
 
-    "width": 1024,
-    "height": 1024,
+    "restore_faces": false,
 
-    "steps": 10,
-    "sampler_name": "LCM",
-    "cfg_scale": 1.7,
+    "width": 896,
+    "height": 1152,
+
+    "steps": 8,
+    "sampler_name": "DPM++ SDE",
+    "cfg_scale": 5,
 
     "override_settings": {
       "sd_model_checkpoint": "sd_xl_base_1.0_0.9vae",
@@ -200,8 +194,18 @@ const sdApiRequest = async (inputImgBase64) => {
         "args": controlNetParams
       },
       "Sampler": {
-        "args": [10, "LCM", "Automatic"]
+        "args": [8, "DPM++ SDE", "Karras"]
       },
+      "reactor": {
+        "args": [
+          inputImgBase64,
+          true,
+          '0,1,2,3', '0,1,2,3',
+          'inswapper_128.onnx', 'CodeFormer',
+          1, true, 'None', 2, 1, true, true, 2, 0, 0, false, 1, true, true,
+          'CUDA', false, 0, null
+        ]
+      }
     },
 
     "send_images": true,
@@ -231,21 +235,18 @@ const startCountdown = () => {
   let countdownIndex = 11;
 
   const countdownEmojis = [
-    "🕛",
-    "🕐",
-    "1",
-    "🕑",
-    "🕒",
-    "2",
-    "🕓",
-    "🕔",
-    "3",
-    "🕕",
-    "🕖",
-    "🕗",
-    "🕘",
-    "🕙",
-    "🕚"
+    "🕛 1",
+    "🕐 1",
+    "🕑 1",
+    "🕒 1",
+    "🕓 2",
+    "🕔 2",
+    "🕕 2",
+    "🕖 2",
+    "🕗 3",
+    "🕘 3",
+    "🕙 3",
+    "🕚 3"
   ]
 
   photoCountdownInterval = setInterval(() => {
@@ -316,7 +317,7 @@ const takePhoto = async () => {
   }
   let progressInterval = setInterval(
     progressChangeText,
-    200
+    600
   )
 
   try {
@@ -328,19 +329,17 @@ const takePhoto = async () => {
 
     // Get base64 image
     const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
-    imgElementTop.src = `data:image/png;base64,${inputImgBase64}`
+    imgElementTop.src = inputImgBase64
 
     imgElementPlaceholder.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")
 
     // Transform source image
-    const outputImgBase64 = await sdApiRequest(inputImgBase64);
+    const outputImgBase64 = await txt2imgApiRequest(inputImgBase64);
     imgElementBottom.src = `data:image/png;base64,${outputImgBase64}`
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")
-
-    btnQrcode.classList.remove("d-none");
 
   } catch ({name, message}) {
 
@@ -355,54 +354,12 @@ const takePhoto = async () => {
 
     clearInterval(progressInterval);
     btnProcessing.classList.add("d-none");
+    btnQrcode.classList.remove("d-none");
 
   }
-
-}
-
-const countdownTestClick = () => {
-
-  let btnCountdown = document.getElementById("btnCountdown");
-
-  btnCountdown.innerText = `🕚`;
-  let countdownIndex = 11;
-
-  const countdownEmojis = [
-    "🕚",
-    "🕐",
-    "🕑",
-    "🕒",
-    "🕓",
-    "🕔",
-    "🕕",
-    "🕖",
-    "🕗",
-    "🕘",
-    "🕙",
-    "🕚"
-  ]
-
-  photoCountdownInterval = setInterval(() => {
-
-    if (countdownIndex > -1) {
-
-      btnCountdown.innerText = countdownEmojis[countdownIndex];
-      countdownIndex--;
-
-    } else {
-
-      clearInterval(photoCountdownInterval);
-      setTimeout(() => {
-        btnCountdown.innerText = countdownEmojis[countdownEmojis.length - 1];
-      }, 1000)
-
-    }
-
-  }, 200);
 
 }
 
 document.getElementById("btnPhoto").addEventListener("click", startCountdown, false)
 document.getElementById("btnSmile").addEventListener("click", smileClick, false)
 document.getElementById("btnProcessing").addEventListener("click", processingClick, false)
-document.getElementById("btnCountdown").addEventListener("click", countdownTestClick, false)

@@ -354,7 +354,9 @@ const takePhoto = async () => {
 
     clearInterval(progressInterval);
     btnProcessing.classList.add("d-none");
-    btnQrcode.classList.remove("d-none");
+
+    // Next workflow step
+    // btnQrcode.classList.remove("d-none");
 
   }
 

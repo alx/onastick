@@ -1,14 +1,81 @@
 #+title: IA on a Stick
 
-[[./static/camera_logo.png]]
+[[./static/camera_logo_202410.jpg]]
 
 #+begin_quote
 "... a powerful system integrating Raspberry Pi with Alpine Linux, Tailscale networking, and PaperMod theming for seamless remote access and streamlined hardware management. The project offers easy-to-follow scripts for setting up services, maintaining remote systems, and deploying web interfaces, with robust support for GPU-based operations on the A1111 Forge. Ideal for developers looking to optimize IoT and edge computing solutions while ensuring scalable network security and performance." --- GPT 4o
 #+end_quote
 
+** Deploy setup
+
+#+NAME: init_var
+#+begin_src bash
+export DEV_PATH=/home/alx/www/onastick/
+export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
+
+export RASPI_IP=192.168.8.178
+export RASPI_HOSTNAME='alpine'
+#+end_src
+
+#+RESULTS: init_var
+
+*** GPU laptop: A1111 webui.sh on tailscale network
+
+**** Start A1111 Forge:
+
+#+begin_src bash
+cd $A1111_FORGE_PATH
+. .venv/bin/activate
+export COMMANDLINE_ARGS="--api"
+./webui.sh
+#+end_src
+
+**** Listen A1111 port 7860 on tailnet port 80:
+
+#+begin_src bash
+tailscale serve --http 80 7860
+#+end_src
+
+*** Router: connect to WAN
+
+- current method is to configure a wifi hotspot on a 4g phone
+- open router admin and connect to wifi hotspot
+- network will be shared to raspberry
+
+*** RASPI: find and connect to tailscale network
+
+- find ~$RASPI~ on tailscale network
+
+  #+begin_src bash
+export RASPI_HOSTNAME='alpine'
+
+# Run tailscale status and filter for RASPI_HOSTNAME that is online
+online_alpine=$(tailscale status | grep $RASPI_HOSTNAME | grep -E '\s+-$')
+
+# Check if any online Alpine computers were found
+if [ -z "$online_alpine" ]; then
+  echo "No online Alpine computers found."
+fi
+
+# Extract the IP address of the first online Alpine computer
+RASPI_IP=$(echo "$online_alpine" | awk '{print $1}')
+
+# Display the IP address of the Alpine computer to connect to
+echo "RASPI_IP: $ip_address"
+  #+end_src
+
+- open browser: http://$RASPI_IP
+
+
 ** News
 
 *** 202409 - UI
+
+**** Firefox screenshot
+
+[[./static/docs/202410_UI_firefox.jpeg]]
+
+**** UI mockup
 
 [[./static/docs/202409_UI_vertical.jpeg]]
 
@@ -57,15 +124,6 @@
 [[./static/docs/202409_network_diagram.png]]
 
 ** Dev Setup
-
-#+NAME: init_var
-#+begin_src bash
-export DEV_PATH=/home/alx/www/onastick/
-export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
-
-export RASPI_IP=192.168.8.178
-export RASPI_HOSTNAME='alpine'
-#+end_src
 
 #+html: <details><summary>
 *** Clone repository
@@ -225,77 +283,19 @@ rsync -avh ./server/local.d/ \
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
-*** Update raspberry pi website
+*** Update hugo website on raspberry pi
 
-#+begin_src bash
-cd $ONASTICK_PATH
+#+begin_src bash :noweb yes :results none
+<<init_var>>
+cd $DEV_PATH
 hugo
-rsync -avh ./public/ \
+rsync -avh ${DEV_PATH}/public/ \
     root@${RASPI_IP}:/media/mmcblk0p2/onastick/ \
     --delete
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
-
-** Start website
-
-*** GPU laptop: A1111 webui.sh on tailscale network
-
-**** Start A1111 Forge:
-
-#+begin_src bash
-cd $A1111_FORGE_PATH
-. .venv/bin/activate
-export COMMANDLINE_ARGS="--api"
-./webui.sh
-#+end_src
-
-**** Listen A1111 port 7860 on tailnet port 80:
-
-#+begin_src bash
-tailscale serve --http 80 7860
-#+end_src
-
-*** Router: connect to WAN
-
-- current method is to configure a wifi hotspot on a 4g phone
-- open router admin and connect to wifi hotspot
-- network will be shared to raspberry
-
-*** RASPI: find and connect to tailscale network
-
-- find ~$RASPI~ on tailscale network
-
-  #+begin_src bash
-export RASPI_HOSTNAME='alpine'
-
-# Run tailscale status and filter for RASPI_HOSTNAME that is online
-online_alpine=$(tailscale status | grep $RASPI_HOSTNAME | grep -E '\s+-$')
-
-# Check if any online Alpine computers were found
-if [ -z "$online_alpine" ]; then
-  echo "No online Alpine computers found."
-fi
-
-# Extract the IP address of the first online Alpine computer
-RASPI_IP=$(echo "$online_alpine" | awk '{print $1}')
-
-# Display the IP address of the Alpine computer to connect to
-echo "RASPI_IP: $ip_address"
-  #+end_src
-
-- serve nginx port 80 to other machines on tailnet (phone for example to access UI):
-
-  #+begin_src bash
-ssh root@$RASPI_IP <<'EOL'
-    tailscale serve --port 80 80
-EOL
-  #+end_src
-
-- ~--port 80~ is used to avoid SSL handshake issues on ~RASPI~ nginx
-
-- open browser: http://$RASPI_IP
 
 ** Specifications
 

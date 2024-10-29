@@ -90,6 +90,7 @@ const getImgBase64 = async (img) => {
     ctx.drawImage(img, 0,0, img.width, img.height,
                       centerShift_x,centerShift_y,img.width*ratio, img.height*ratio);
 
+    // "data:image/png;base64,..."
     dataURL = await canvas.toDataURL();
 
   } catch (e) {
@@ -101,126 +102,19 @@ const getImgBase64 = async (img) => {
   return new Promise(resolve => resolve(dataURL));
 }
 
-const interrogatorApiRequest = async (inputImgBase64) => {
-
-  const SERVER_API_ENDPOINT = "/gpu/interrogator/prompt";
-
-  const interrogatorParams = {
-    "image": inputImgBase64,
-    "clip_model_name": "RN50/openai",
-    "mode": "fast"
-  }
-
-  console.log(interrogatorParams)
-
-  const response = await fetch(SERVER_API_ENDPOINT, {
-    method: "POST",
-    body: JSON.stringify(interrogatorParams),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8"
-    }
-  })
-  const outputJson = await response.json();
-  console.log(outputJson)
-  const response_prompt = outputJson["prompt"]
-
-  let result = "";
-
-  // return first result from list
-  if(response_prompt.indexOf("Exception") === -1) {
-    result = response_prompt.split(',')[0]
-  }
-
-  return result;
-}
-
 const txt2imgApiRequest = async (inputImgBase64) => {
 
-  const SERVER_API_ENDPOINT = "/gpu/sdapi/v1/txt2img";
-
-  const interrogator_prompt = await interrogatorApiRequest(inputImgBase64)
-
-  const prompt = interrogator_prompt + ", A black and white vintage, timeworn family photograph from 1890, rural clothing, ultra-detailed, 8k, slightly sepia tone";
-  const negative_prompt = "text, bad art, blurry, watermark, person, tripod, letters, ugly, deformed, glasses";
-
-  const controlNetParams = [
-    {
-      "batch_image_dir": "",
-      "batch_input_gallery": null,
-      "batch_mask_dir": "",
-      "batch_mask_gallery": null,
-      "control_mode": "Balanced",
-      "enabled": true,
-      "guidance_end": 0.8,
-      "guidance_start": 0.0,
-      "hr_option": "Both",
-      "image": inputImgBase64,
-      "mask_image": null,
-      "mask_image_fg": null,
-      "model": "control-lora-canny-rank128 [c910cde9]",
-      "module": "canny",
-      "pixel_perfect": false,
-      "processor_res": 512,
-      "resize_mode": "Crop and Resize",
-      "save_detected_map": true,
-      "threshold_a": 100,
-      "threshold_b": 200,
-      "use_preview_as_input": false,
-      "weight": 1.2
-    }
-  ];
-
-  const txt2imgParams = {
-
-    "prompt": prompt,
-    "negative_prompt": negative_prompt,
-
-    "restore_faces": false,
-
-    "width": 896,
-    "height": 1152,
-
-    "steps": 8,
-    "sampler_name": "DPM++ SDE",
-    "cfg_scale": 5,
-
-    "override_settings": {
-      "sd_model_checkpoint": "sd_xl_base_1.0_0.9vae",
-      "sd_checkpoint_hash": "62b2a03e85",
-    },
-
-    "alwayson_scripts": {
-      "ControlNet": {
-        "args": controlNetParams
-      },
-      "Sampler": {
-        "args": [8, "DPM++ SDE", "Karras"]
-      },
-      "reactor": {
-        "args": [
-          inputImgBase64,
-          true,
-          '0,1,2,3', '0,1,2,3',
-          'inswapper_128.onnx', 'CodeFormer',
-          1, true, 'None', 2, 1, true, true, 2, 0, 0, false, 1, true, true,
-          'CUDA', false, 0, null
-        ]
-      }
-    },
-
-    "send_images": true,
-    "save_images": true,
-  };
-
-  const response = await fetch(SERVER_API_ENDPOINT, {
+  const response = await fetch("/gpu/gen", {
     method: "POST",
-    body: JSON.stringify(txt2imgParams),
+    body: JSON.stringify({
+      image: inputImgBase64.replace("data:image/png;base64,", "")
+    }),
     headers: {
       "Content-type": "application/json; charset=UTF-8"
     }
   })
   const outputJson = await response.json();
-  return outputJson.images[0]
+  return outputJson.image
 }
 
 const startCountdown = () => {
@@ -336,7 +230,7 @@ const takePhoto = async () => {
 
     // Transform source image
     const outputImgBase64 = await txt2imgApiRequest(inputImgBase64);
-    imgElementBottom.src = `data:image/png;base64,${outputImgBase64}`
+    imgElementBottom.src = outputImgBase64;
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")

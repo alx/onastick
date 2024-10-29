@@ -285,7 +285,7 @@ ssh root@$RASPI_IP 'lbu commit'
 
 *** Update hugo website on raspberry pi
 
-#+begin_src bash :noweb yes :results none
+#+begin_src bash :noweb yes :results silent
 <<init_var>>
 cd $DEV_PATH
 hugo

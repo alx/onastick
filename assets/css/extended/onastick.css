@@ -33,7 +33,7 @@ body {
 
 #photoRowTop {
     width: 100%;
-    height: 56.25vw; /* 16:9 aspect ratio (9/16 = 0.5625) */
+    height: 80vw; /* 16:9 aspect ratio (9/16 = 0.5625) */
     background-color: #222;
 }
 

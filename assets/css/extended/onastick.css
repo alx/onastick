@@ -13,7 +13,7 @@ body {
     justify-content: center;
     align-items: center;
     font-family: Arial, sans-serif;
-    background: #222 !important;
+    background: #FFF !important;
 }
 
 .main {
@@ -33,8 +33,8 @@ body {
 
 #photoRowTop {
     width: 100%;
-    height: 80vw; /* 16:9 aspect ratio (9/16 = 0.5625) */
-    background-color: #222;
+    height: 80vw; /FFF 16:9 aspect ratio (9/16 = 0.5625) */
+    background-color: #FFF;
 }
 
 #photoRowTop img {
@@ -47,7 +47,7 @@ body {
 #photoRowBottom {
     width: 100%;
     height: 100vw; /* 1:1 aspect ratio */
-    background-color: #222;
+    background-color: #FFF;
 }
 
 #photoRowBottom img {
@@ -59,6 +59,29 @@ body {
 
 
 /* Position the button at the bottom of the second image */
+.btn-bottom {
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  padding: 10px 20px;
+
+  font-size: 50px !important;
+  border: 3px solid #FFF;
+  -webkit-box-shadow: 0 0 10px #000;
+  box-shadow: 0 0 10px #000;
+}
+
+#btn-bottom-lvl1 {
+}
+
+#btn-bottom-lvl2 {
+  bottom: 150px;
+}
+
+#btn-bottom-lvl3 {
+  bottom: 270px;
+}
+
 .btn-bottom {
   position: absolute;
   bottom: 30px;

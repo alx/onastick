@@ -76,8 +76,8 @@ const getImgBase64 = async (img) => {
   try {
 
     let canvas = document.createElement('CANVAS');
-    canvas.width = 176;
-    canvas.height = 144;
+    canvas.width = 960;
+    canvas.height = 720;
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0,0,canvas.width, canvas.height);
     ctx.drawImage(img, 0,0);
@@ -257,22 +257,20 @@ const takePhoto = async (promptSlug = "") => {
     imgElementPlaceholder.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")
 
-    const CAMERA_CURRENT_URL = "/current";
-
-    // Get source image
-    const sourceImgHTMLElement = await getImgSource(CAMERA_CURRENT_URL)
-    const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
-    console.log(inputImgBase64)
+    const capture = await fetch("/take_capture")
 
     // Get base64 image
+    const sourceImgHTMLElement = await getImgSource("/capture.jpg")
+    const inputImgBase64 = await getCaptureBase64(sourceImgHTMLElement);
+
+    // Get source image
+    // TODO replace imgElementTop.src = "/capture.jpg"
     const resizedImgBase64 = await getImgBase64Resized(sourceImgHTMLElement);
     imgElementTop.src = resizedImgBase64
-    console.log(resizedImgBase64)
 
     // Transform source image
     const outputImgBase64 = await txt2imgApiRequest(inputImgBase64, promptSlug);
     imgElementBottom.src = outputImgBase64;
-    console.log(outputImgBase64)
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")

@@ -156,14 +156,16 @@ git submodule update --init --recursive
 **** APK packages
 #+html: </summary>
 
-#+begin_src bash
+#+begin_src bash :noweb yes :results silent
+<<init_var>>
 ssh root@$RASPI_IP <<'EOL'
         apk add mjpeg-streamer \
         nginx \
         nginx-mod-rtmp \
         ffmpeg \
         tailscale \
-        vim
+        vim \
+        fcgiwrap
 EOL
 
 # don't forget to update Alpine local backup
@@ -206,15 +208,15 @@ rsync -avh ./server/init.d/webcam_stream \
     root@${RASPI_IP}:/etc/init.d/webcam_stream \
     --delete
 
-# add webcam_stream service at default level in openrc
-ssh root@$RASPI_IP 'rc-update add webcam_stream default'
-
 rsync -avh ./server/bin/webcam_capture.sh \
     root@${RASPI_IP}:/usr/local/bin/webcam_capture.sh \
     --delete
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
+
+# add webcam_stream service at default level in openrc
+ssh root@$RASPI_IP 'rc-update add webcam_stream default'
 #+end_src
 
 #+html: </details>
@@ -222,8 +224,8 @@ ssh root@$RASPI_IP 'lbu commit'
 **** Install other startup scripts
 #+html: </summary>
 
-#+begin_src bash
-cd $ONASTICK_PATH
+#+begin_src bash :noweb yes :results silent
+<<init_var>>
 rsync -avh ./server/local.d/ \
     root@${RASPI_IP}:/etc/local.d/ \
     --delete
@@ -237,9 +239,8 @@ ssh root@$RASPI_IP 'lbu commit'
 **** Install nginx configuration
 #+html: </summary>
 
-#+begin_src bash
+#+begin_src bash :noweb yes :results silent
 <<init_var>>
-cd $ONASTICK_PATH
 
 # nginx.conf
 rsync -avh ./server/nginx/nginx.conf \
@@ -255,30 +256,6 @@ ssh root@$RASPI_IP rc-service nginx restart
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
-
-#+html: </details>
-#+html: <details><summary>
-**** Stream
-#+html: </summary>
-
-#+begin_src bash
-ffmpeg \
-    -f v4l2 \
-    -framerate 30 \
-    -video_size 176x144 \
-    -input_format yuyv422 \
-    -i /dev/video0 \
-    -f hls \
-    -c:v libx264 \
-    -b:v 5000k \
-    -hls_time 6 \
-    -hls_list_size 10 \
-    -hls_delete_threshold 1 \
-    -hls_flags delete_segments \
-    /mnt/hls/stream.m3u8
-#+end_src
-
-#+html: </details>
 
 ** Maintenance
 
@@ -304,6 +281,8 @@ rsync -avh ./server/local.d/ \
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
+
+#+RESULTS:
 
 *** Update hugo website on raspberry pi
 
@@ -388,6 +367,10 @@ $ ssh root@$RASPI_IP tail /var/log/nginx/error.log
 <<init_var>>
 ssh root@$RASPI_IP rc-service nginx restart
 #+end_src
+
+#+RESULTS:
+| Stopping | nginx | ... | [ | ok | ] |
+| Starting | nginx | ... | [ | ok | ] |
 
 #+html: </details>
 

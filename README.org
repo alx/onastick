@@ -291,8 +291,7 @@ ssh root@$RASPI_IP 'lbu commit'
 cd $DEV_PATH
 hugo
 rsync -avh ${DEV_PATH}/public/ \
-    root@${RASPI_IP}:/media/mmcblk0p2/onastick/ \
-    --delete
+    root@${RASPI_IP}:/media/mmcblk0p2/onastick/
 
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'

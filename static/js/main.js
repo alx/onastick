@@ -4,11 +4,16 @@ let btnPhotoEmojiInterval;
 let btnSmileEmojiInterval;
 
 // Show the flash light on btnPhoto emoji
-let btnPhotoEmojiFlash = false;
 const btnPhotoModifyEmoji = () => {
-  let btnPhoto = document.getElementById("btnPhoto");
-  btnPhoto.innerText = btnPhotoEmojiFlash ? "📷":"📸";
-  btnPhotoEmojiFlash = !btnPhotoEmojiFlash;
+  let btnPhotos = document.getElementsByClassName("btn-photo");
+  for (var i = 0; i < btnPhotos.length; i++) {
+    btnPhoto = btnPhotos.item(i)
+    if(btnPhoto.innerText.indexOf("📷") === -1) {
+      btnPhoto.innerText.replace("📸","📷")
+    } else {
+      btnPhoto.innerText.replace("📷","📸")
+    }
+  }
 }
 
 // Rotate emoji on btnSmile button
@@ -70,6 +75,31 @@ const getImgBase64 = async (img) => {
 
   try {
 
+    let canvas = document.createElement('CANVAS');
+    canvas.width = 176;
+    canvas.height = 144;
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.drawImage(img, 0,0);
+
+    // "data:image/png;base64,..."
+    dataURL = await canvas.toDataURL();
+
+  } catch (e) {
+
+    console.log({ e });
+
+  }
+
+  return new Promise(resolve => resolve(dataURL));
+}
+
+const getImgBase64Resized = async (img) => {
+
+  let dataURL;
+
+  try {
+
     let canvas = document.createElement('CANVAS', {antialias: false});
     canvas.width = 1024;
     canvas.height = 1024;
@@ -102,12 +132,14 @@ const getImgBase64 = async (img) => {
   return new Promise(resolve => resolve(dataURL));
 }
 
-const txt2imgApiRequest = async (inputImgBase64) => {
+const txt2imgApiRequest = async (inputImgBase64, promptSlug) => {
 
+  console.log(promptSlug)
   const response = await fetch("/gpu/gen", {
     method: "POST",
     body: JSON.stringify({
-      image: inputImgBase64.replace("data:image/png;base64,", "")
+      image: inputImgBase64.replace("data:image/png;base64,", ""),
+      promptSlug: promptSlug
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8"
@@ -117,15 +149,20 @@ const txt2imgApiRequest = async (inputImgBase64) => {
   return outputJson.image
 }
 
-const startCountdown = () => {
+const startCountdown = (event) => {
 
-  let btnPhoto = document.getElementById("btnPhoto");
-  btnPhoto.classList.add("d-none")
+  const promptSlug = event.target.getAttribute("data-slug");
+  console.log(promptSlug)
+
+  let btnPhotos = document.getElementsByClassName("btn-photo");
+  for (var i = 0; i < btnPhotos.length; i++) {
+    btnPhotos.item(i).classList.add("d-none")
+  }
 
   let btnCountdown = document.getElementById("btnCountdown");
   btnCountdown.classList.remove("d-none")
 
-  btnCountdown.innerText = `🕚`;
+  btnCountdown.innerText = `🕚 3`;
   let countdownIndex = 11;
 
   const countdownEmojis = [
@@ -159,15 +196,16 @@ const startCountdown = () => {
       btnCountdown.classList.add("d-none")
       btnSmile.classList.remove("d-none")
 
-      setTimeout(takePhoto, 1500)
+      setTimeout(takePhoto(promptSlug), 1500)
 
     }
 
   }, 250);
 }
 
-const takePhoto = async () => {
+const takePhoto = async (promptSlug = "") => {
 
+  console.log(promptSlug)
   let imgElementTop = document.getElementById("photoStream")
 
   let imgElementBottom = document.getElementById("photoBottom")
@@ -216,21 +254,25 @@ const takePhoto = async () => {
 
   try {
 
+    imgElementPlaceholder.classList.add("d-none")
+    imgElementProcessing.classList.remove("d-none")
+
     const CAMERA_CURRENT_URL = "/current";
 
     // Get source image
     const sourceImgHTMLElement = await getImgSource(CAMERA_CURRENT_URL)
+    const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
+    console.log(inputImgBase64)
 
     // Get base64 image
-    const inputImgBase64 = await getImgBase64(sourceImgHTMLElement);
-    imgElementTop.src = inputImgBase64
-
-    imgElementPlaceholder.classList.add("d-none")
-    imgElementProcessing.classList.remove("d-none")
+    const resizedImgBase64 = await getImgBase64Resized(sourceImgHTMLElement);
+    imgElementTop.src = resizedImgBase64
+    console.log(resizedImgBase64)
 
     // Transform source image
-    const outputImgBase64 = await txt2imgApiRequest(inputImgBase64);
+    const outputImgBase64 = await txt2imgApiRequest(inputImgBase64, promptSlug);
     imgElementBottom.src = outputImgBase64;
+    console.log(outputImgBase64)
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")
@@ -256,6 +298,9 @@ const takePhoto = async () => {
 
 }
 
-document.getElementById("btnPhoto").addEventListener("click", startCountdown, false)
+let btnPhotos = document.getElementsByClassName("btn-photo");
+for (var i = 0; i < btnPhotos.length; i++) {
+  btnPhotos.item(i).addEventListener("click", startCountdown, false)
+}
 document.getElementById("btnSmile").addEventListener("click", smileClick, false)
 document.getElementById("btnProcessing").addEventListener("click", processingClick, false)

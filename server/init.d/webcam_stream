@@ -1,0 +1,7 @@
+#!/sbin/openrc-run
+name="Webcam stream"
+description="Stream uvc webcam with mjpg_streamer"
+command="/usr/bin/mjpg_streamer"
+command_background=true
+pidfile="/run/webcam_stream.pid"
+command_args="-i 'input_uvc.so --resolution 176x144'"

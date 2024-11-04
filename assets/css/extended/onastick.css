@@ -57,29 +57,15 @@ body {
     border-radius: 0px 0px 15px 15px;
 }
 
-
-/* Position the button at the bottom of the second image */
-.btn-bottom {
-  position: absolute;
-  right: 30px;
-  bottom: 30px;
-  padding: 10px 20px;
-
-  font-size: 50px !important;
-  border: 3px solid #FFF;
-  -webkit-box-shadow: 0 0 10px #000;
-  box-shadow: 0 0 10px #000;
+.btn-bottom-lvl1 {
 }
 
-#btn-bottom-lvl1 {
+.btn-bottom-lvl2 {
+  bottom: 150px !important;
 }
 
-#btn-bottom-lvl2 {
-  bottom: 150px;
-}
-
-#btn-bottom-lvl3 {
-  bottom: 270px;
+.btn-bottom-lvl3 {
+  bottom: 270px !important;
 }
 
 .btn-bottom {
@@ -92,6 +78,11 @@ body {
   border: 3px solid #FFF;
   -webkit-box-shadow: 0 0 10px #000;
   box-shadow: 0 0 10px #000;
+}
+
+.btn-bottom-left {
+  right: auto !important;
+  left: 30px !important;
 }
 
 #btnCountdown {

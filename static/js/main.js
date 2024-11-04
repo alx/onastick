@@ -132,27 +132,34 @@ const getImgBase64Resized = async (img) => {
   return new Promise(resolve => resolve(dataURL));
 }
 
-const txt2imgApiRequest = async (inputImgBase64, promptSlug) => {
+const txt2imgApiRequest = async (promptSlug) => {
 
-  console.log(promptSlug)
-  const response = await fetch("/gpu/gen", {
+  // Create File obj with /capture.jpg content
+  let captureResponse = await fetch("/capture.jpg");
+  let data = await captureResponse.blob();
+  let metadata = {
+    type: "image/jpg",
+  };
+  const captureImg = new File([data], "capture.jpg", metadata);
+
+  // Set form parameters: image and prompt
+  let formData = new FormData();
+  formData.append("prompt", promptSlug)
+  formData.append("image", captureImg)
+
+  // request api-call-matrix flask server
+  const apiResponseImage = await fetch("/gpu/gen", {
     method: "POST",
-    body: JSON.stringify({
-      image: inputImgBase64.replace("data:image/png;base64,", ""),
-      promptSlug: promptSlug
-    }),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8"
-    }
+    body: formData
   })
-  const outputJson = await response.json();
-  return outputJson.image
+
+  const imageBlob = await apiResponseImage.blob();
+  return URL.createObjectURL(imageBlob);
 }
 
 const startCountdown = (event) => {
 
   const promptSlug = event.target.getAttribute("data-slug");
-  console.log(promptSlug)
 
   let btnPhotos = document.getElementsByClassName("btn-photo");
   for (var i = 0; i < btnPhotos.length; i++) {
@@ -193,10 +200,10 @@ const startCountdown = (event) => {
 
       let btnSmile = document.getElementById("btnSmile");
 
-      btnCountdown.classList.add("d-none")
-      btnSmile.classList.remove("d-none")
+      btnCountdown.classList.add("d-none");
+      btnSmile.classList.remove("d-none");
 
-      setTimeout(takePhoto(promptSlug), 1500)
+      setTimeout(takePhoto(promptSlug), 1500);
 
     }
 
@@ -205,7 +212,6 @@ const startCountdown = (event) => {
 
 const takePhoto = async (promptSlug = "") => {
 
-  console.log(promptSlug)
   let imgElementTop = document.getElementById("photoStream")
 
   let imgElementBottom = document.getElementById("photoBottom")
@@ -259,21 +265,14 @@ const takePhoto = async (promptSlug = "") => {
 
     const capture = await fetch("/take_capture")
 
-    // Get base64 image
-    const sourceImgHTMLElement = await getImgSource("/capture.jpg")
-    const inputImgBase64 = await getCaptureBase64(sourceImgHTMLElement);
-
-    // Get source image
-    // TODO replace imgElementTop.src = "/capture.jpg"
-    const resizedImgBase64 = await getImgBase64Resized(sourceImgHTMLElement);
-    imgElementTop.src = resizedImgBase64
-
-    // Transform source image
-    const outputImgBase64 = await txt2imgApiRequest(inputImgBase64, promptSlug);
-    imgElementBottom.src = outputImgBase64;
+    imgElementTop.src = "/capture.jpg"
+    imgElementBottom.src = await txt2imgApiRequest(promptSlug);
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")
+
+    document.getElementById("btnActionKeep").classList.remove("d-none")
+    document.getElementById("btnActionDelete").classList.remove("d-none")
 
   } catch ({name, message}) {
 
@@ -289,10 +288,16 @@ const takePhoto = async (promptSlug = "") => {
     clearInterval(progressInterval);
     btnProcessing.classList.add("d-none");
 
-    // Next workflow step
-    // btnQrcode.classList.remove("d-none");
-
   }
+
+}
+
+const actionKeepClick = async () => {
+
+  let imgElementTop = document.getElementById("photoStream")
+
+  const keepResponse = await fetch("/gpu/keep")
+  new QRCode(imgElementTop, keepResponse.url);
 
 }
 
@@ -302,3 +307,4 @@ for (var i = 0; i < btnPhotos.length; i++) {
 }
 document.getElementById("btnSmile").addEventListener("click", smileClick, false)
 document.getElementById("btnProcessing").addEventListener("click", processingClick, false)
+document.getElementById("btnActionKeep").addEventListener("click", actionKeepClick, false)

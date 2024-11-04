@@ -212,11 +212,11 @@ rsync -avh ./server/bin/webcam_capture.sh \
     root@${RASPI_IP}:/usr/local/bin/webcam_capture.sh \
     --delete
 
+ssh root@$RASPI_IP 'lbu include /etc/init.d/webcam_stream'
+ssh root@$RASPI_IP 'rc-update add webcam_stream default'
+
 # don't forget to update Alpine local backup
 ssh root@$RASPI_IP 'lbu commit'
-
-# add webcam_stream service at default level in openrc
-ssh root@$RASPI_IP 'rc-update add webcam_stream default'
 #+end_src
 
 #+html: </details>

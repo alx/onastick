@@ -294,10 +294,14 @@ const takePhoto = async (promptSlug = "") => {
 
 const actionKeepClick = async () => {
 
-  let imgElementTop = document.getElementById("photoStream")
+  const imgElementTop = document.getElementById("photoStream")
 
+  let qrcodeElement = document.getElementById("qrcode")
   const keepResponse = await fetch("/gpu/keep")
-  new QRCode(imgElementTop, keepResponse.url);
+  new QRCode(qrcodeElement, keepResponse);
+
+  imgElementTop.classList.add('d-none')
+  qrcodeElement.classList.remove('d-none')
 
 }
 

@@ -2,12 +2,13 @@
     <div id="photoRowTop" class="row">
 
       <!-- Top Row with Image -->
-      <div id ="stream" class="col">
+      <div id="stream" class="col">
         <img
           id="photoStream"
           src="{{ .Site.Params.photomatonMode.srcStream }}"
-          class="img-fluid"
+          class="img-fluid d-none"
           />
+        <div id="qrcode" class=""></div>
       </div>
 
     </div>

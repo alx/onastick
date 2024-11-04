@@ -37,11 +37,21 @@ body {
     background-color: #FFF;
 }
 
-#photoRowTop img {
+img#photoStream {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 15px 15px 0px 0px;
+}
+
+#qrcode {
+  height: 100%
+}
+
+#qrcode img {
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #photoRowBottom {

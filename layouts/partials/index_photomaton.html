@@ -6,9 +6,9 @@
         <img
           id="photoStream"
           src="{{ .Site.Params.photomatonMode.srcStream }}"
-          class="img-fluid d-none"
+          class="img-fluid"
           />
-        <div id="qrcode" class=""></div>
+        <div id="qrcode" class="d-none"></div>
       </div>
 
     </div>
@@ -114,6 +114,15 @@
             href="/"
             >
           🗑️ Delete
+        </a>
+
+        <a
+            id="btnActionRefresh"
+            class="btn btn-lg fs-1 d-none btn-bottom btn-bottom-left btn-action"
+            role="button"
+            href="/"
+            >
+          📷️ Next photo
         </a>
 
       </div>

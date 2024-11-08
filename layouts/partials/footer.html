@@ -56,8 +56,10 @@
 
 {{- partial "extend_footer.html" . }}
 
+{{ $seed := "iaonastick" }}
+{{ $random := delimit (shuffle (split (md5 $seed) "" )) "" }}
 {{ range site.Params.CustomJS -}}
-    <script type="text/javascript" src="{{ . | relURL }}"></script>
+    <script type="text/javascript" src="{{ . | relURL }}?{{ $random }}"></script>
 {{- end }}
 
 {{- if (not site.Params.disableScrollToTop) }}

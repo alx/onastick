@@ -132,15 +132,15 @@ const getImgBase64Resized = async (img) => {
   return new Promise(resolve => resolve(dataURL));
 }
 
-const txt2imgApiRequest = async (promptSlug) => {
+const txt2imgApiRequest = async (promptSlug, base64Str) => {
 
-  // Create File obj with /capture.jpg content
-  let captureResponse = await fetch("/capture.jpg");
-  let data = await captureResponse.blob();
-  let metadata = {
-    type: "image/jpg",
-  };
-  const captureImg = new File([data], "capture.jpg", metadata);
+  // Create File obj with base64Str content
+  // from /webcam_capture endpoint
+  const captureImg = new File(
+    [Uint8Array.from(atob(base64Str), (m) => m.codePointAt(0))],
+    'capture.jpg',
+    { type: "image/jpg" }
+  );
 
   // Set form parameters: image and prompt
   let formData = new FormData();
@@ -263,10 +263,12 @@ const takePhoto = async (promptSlug = "") => {
     imgElementPlaceholder.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")
 
-    const capture = await fetch("/take_capture")
+    const capture = await fetch("/webcam_capture");
+    const base64Str = await capture.text();
+    const base64Img = "data:image/png;base64," + base64Str;
 
-    imgElementTop.src = "/capture.jpg"
-    imgElementBottom.src = await txt2imgApiRequest(promptSlug);
+    imgElementTop.src = base64Img;
+    imgElementBottom.src = await txt2imgApiRequest(promptSlug, base64Str);
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")

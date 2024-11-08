@@ -255,10 +255,11 @@ const takePhoto = async (promptSlug = "") => {
   }
   let progressInterval = setInterval(
     progressChangeText,
-    600
+    300
   )
 
   try {
+    imgElementTop.src = "/smile.jpg";
 
     imgElementPlaceholder.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")

@@ -297,14 +297,51 @@ const takePhoto = async (promptSlug = "") => {
 const actionKeepClick = async () => {
 
   const imgElementTop = document.getElementById("photoStream")
+  const qrcodeElement = document.getElementById("qrcode")
 
-  let qrcodeElement = document.getElementById("qrcode")
-  const keepResponse = await fetch("/gpu/keep")
-  new QRCode(qrcodeElement, keepResponse);
+  const keepResponse = await fetch("/gpu/keep");
+  const imgUrl = await keepResponse.text();
+
+  const config = {
+    "length": 300,
+    "padding": 20,
+    "value": imgUrl,
+    "errorCorrectionLevel": "H",
+    "logo": {
+      "url": "",
+      "size": 9,
+      "removeBg": true
+    },
+    "shapes": {
+      "eyeFrame": "body",
+      "body": "square",
+      "eyeball": "body"
+    },
+    "colors": {
+      "background": "transparent",
+      "body": "rgb(1, 1, 1)",
+      "eyeFrame": {
+        "topLeft": "body",
+        "topRight": "body",
+        "bottomLeft": "body"
+      },
+      "eyeball": {
+        "topLeft": "rgb(9, 91, 241)",
+        "topRight": "rgb(9, 91, 241)",
+        "bottomLeft": "rgb(9, 91, 241)"
+      }
+    }
+  }
+  const svgString = window.qrcode.generateSVGString(config);
+  qrcodeElement.innerHTML = svgString;
 
   imgElementTop.classList.add('d-none')
   qrcodeElement.classList.remove('d-none')
 
+  // Change action button layout
+  document.getElementById("btnActionKeep").classList.add("d-none")
+  document.getElementById("btnActionDelete").classList.add("d-none")
+  document.getElementById("btnActionRefresh").classList.remove("d-none")
 }
 
 let btnPhotos = document.getElementsByClassName("btn-photo");

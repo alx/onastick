@@ -304,14 +304,14 @@ const actionKeepClick = async () => {
   const imgUrl = await keepResponse.text();
 
   const config = {
-    "length": 300,
+    "length": 500,
     "padding": 20,
     "value": imgUrl,
     "errorCorrectionLevel": "H",
     "logo": {
       "url": "",
       "size": 9,
-      "removeBg": true
+      "removeBg": false
     },
     "shapes": {
       "eyeFrame": "body",

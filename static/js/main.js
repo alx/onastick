@@ -2,6 +2,7 @@
 let photoCountdownInterval;
 let btnPhotoEmojiInterval;
 let btnSmileEmojiInterval;
+let btnRefreshInterval;
 
 // Show the flash light on btnPhoto emoji
 const btnPhotoModifyEmoji = () => {
@@ -295,7 +296,28 @@ const takePhoto = async (promptSlug = "") => {
 
 }
 
-const actionKeepClick = async () => {
+const btnRefreshEmoji = () => {
+  let actionRunEmoji = document.getElementById("actionRunPublish");
+
+  if(actionRunEmoji.innerText == "🔄") {
+    actionRunEmoji.innerText = "🔃"
+  } else {
+    actionRunEmoji.innerText = "🔄"
+  }
+
+}
+
+const actionKeepClick = async (e) => {
+
+  const btnAction = e.target;
+
+  const actionInitEmoji = btnAction.querySelector("#actionInitPublish");
+  actionInitEmoji.classList.add("d-none")
+
+  const actionRunEmoji = btnAction.querySelector("#actionRunPublish");
+  actionRunEmoji.classList.remove("d-none")
+
+  btnRefreshInterval = setInterval(btnRefreshEmoji, 200);
 
   const imgElementTop = document.getElementById("photoStream")
   const qrcodeElement = document.getElementById("qrcode")
@@ -343,6 +365,8 @@ const actionKeepClick = async () => {
   document.getElementById("btnActionKeep").classList.add("d-none")
   document.getElementById("btnActionDelete").classList.add("d-none")
   document.getElementById("btnActionRefresh").classList.remove("d-none")
+
+  clearInterval(btnRefreshInterval);
 }
 
 let btnPhotos = document.getElementsByClassName("btn-photo");

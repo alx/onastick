@@ -161,6 +161,7 @@ const txt2imgApiRequest = async (promptSlug, base64Str) => {
 const startCountdown = (event) => {
 
   const promptSlug = event.target.getAttribute("data-slug");
+  let imgElementTop = document.getElementById("photoStream")
 
   let btnPhotos = document.getElementsByClassName("btn-photo");
   for (var i = 0; i < btnPhotos.length; i++) {
@@ -188,14 +189,28 @@ const startCountdown = (event) => {
     "🕚 3"
   ]
 
-  photoCountdownInterval = setInterval(() => {
+  photoCountdownInterval = setInterval(async () => {
 
     if (countdownIndex > -1) {
+
+      if (countdownIndex === 11) {
+        document.getElementById("photoStream").classList.add("d-none");
+        document.getElementById("countdown3").classList.remove("d-none");
+      } else if (countdownIndex === 7) {
+        document.getElementById("countdown3").classList.add("d-none");
+        document.getElementById("countdown2").classList.remove("d-none");
+      } else if (countdownIndex === 3) {
+        document.getElementById("countdown2").classList.add("d-none");
+        document.getElementById("countdown1").classList.remove("d-none");
+      }
 
       btnCountdown.innerText = countdownEmojis[countdownIndex];
       countdownIndex--;
 
     } else {
+
+      document.getElementById("countdown1").classList.add("d-none");
+      document.getElementById("countdownSmile").classList.remove("d-none");
 
       clearInterval(photoCountdownInterval);
 
@@ -204,14 +219,23 @@ const startCountdown = (event) => {
       btnCountdown.classList.add("d-none");
       btnSmile.classList.remove("d-none");
 
-      setTimeout(takePhoto(promptSlug), 1500);
+      const capture = await fetch("/webcam_capture");
+      const base64Str = await capture.text();
+
+      // Replace top image with capture
+      document.getElementById("countdownSmile").classList.add("d-none");
+      const base64Img = "data:image/png;base64," + base64Str;
+      imgElementTop.src = base64Img;
+      imgElementTop.classList.remove("d-none");
+
+      setTimeout(takePhoto(promptSlug, base64Str), 1500);
 
     }
 
   }, 250);
 }
 
-const takePhoto = async (promptSlug = "") => {
+const takePhoto = async (promptSlug, base64Str) => {
 
   let imgElementTop = document.getElementById("photoStream")
 
@@ -260,16 +284,9 @@ const takePhoto = async (promptSlug = "") => {
   )
 
   try {
-    imgElementTop.src = "/smile.jpg";
-
     imgElementPlaceholder.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")
 
-    const capture = await fetch("/webcam_capture");
-    const base64Str = await capture.text();
-    const base64Img = "data:image/png;base64," + base64Str;
-
-    imgElementTop.src = base64Img;
     imgElementBottom.src = await txt2imgApiRequest(promptSlug, base64Str);
 
     imgElementProcessing.classList.add("d-none")

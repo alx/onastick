@@ -6,12 +6,33 @@
 "... a powerful system integrating Raspberry Pi with Alpine Linux, Tailscale networking, and PaperMod theming for seamless remote access and streamlined hardware management. The project offers easy-to-follow scripts for setting up services, maintaining remote systems, and deploying web interfaces, with robust support for GPU-based operations on the A1111 Forge. Ideal for developers looking to optimize IoT and edge computing solutions while ensuring scalable network security and performance." --- GPT 4o
 #+end_quote
 
+** News
+
+*** 202410 - UI
+
+**** Firefox screenshot
+
+[[./static/docs/202410_UI_firefox.jpeg]]
+
+**** UI mockup
+
+[[./static/docs/202409_UI_vertical.jpeg]]
+
+*** 202409 - fieldtest
+
+[[./static/docs/202409_beach.jpeg]]
+
+[[./static/docs/202409_zoom.jpeg]]
+
+[[./static/docs/202409_UI.jpeg]]
+
 ** Deploy setup
 
 #+NAME: init_var
 #+begin_src bash
 export DEV_PATH=/home/alx/www/onastick/
 export A1111_FORGE_PATH=/home/alx/code/a1111_forge/
+export API_CALL_MATRIX_PATH=/home/alx/code/api-call-matrix/
 
 export RASPI_IP=192.168.8.178
 export RASPI_HOSTNAME='alpine'
@@ -30,10 +51,18 @@ export COMMANDLINE_ARGS="--api"
 ./webui.sh
 #+end_src
 
-**** Listen A1111 port 7860 on tailnet port 80:
+**** Start api-call-matrix flask server:
 
 #+begin_src bash
-tailscale serve --http 80 7860
+cd $API_CALL_MATRIX_PATH
+. .venv/bin/activate
+flask -A flask_server run
+#+end_src
+
+**** Listen api-call-matrix port 5000 on tailnet port 80:
+
+#+begin_src bash
+tailscale serve --http 80 5000
 #+end_src
 
 *** Router: connect to WAN
@@ -66,26 +95,6 @@ echo "RASPI_IP: $ip_address"
 
 - open browser: http://$RASPI_IP
 
-
-** News
-
-*** 202409 - UI
-
-**** Firefox screenshot
-
-[[./static/docs/202410_UI_firefox.jpeg]]
-
-**** UI mockup
-
-[[./static/docs/202409_UI_vertical.jpeg]]
-
-*** 202409 - fieldtest
-
-[[./static/docs/202409_beach.jpeg]]
-
-[[./static/docs/202409_zoom.jpeg]]
-
-[[./static/docs/202409_UI.jpeg]]
 
 ** Hardware stack
 
@@ -212,11 +221,29 @@ rsync -avh ./server/bin/webcam_capture.sh \
     root@${RASPI_IP}:/usr/local/bin/webcam_capture.sh \
     --delete
 
-ssh root@$RASPI_IP 'lbu include /etc/init.d/webcam_stream'
-ssh root@$RASPI_IP 'rc-update add webcam_stream default'
+rsync -avh ./server/monit/monitrc \
+    root@${RASPI_IP}:/etc/monitrc \
+    --delete
 
-# don't forget to update Alpine local backup
-ssh root@$RASPI_IP 'lbu commit'
+rsync -avh ./server/monit/monit.d/webcam_stream \
+    root@${RASPI_IP}:/etc/monit.d/webcam_stream \
+    --delete
+
+ssh root@$RASPI_IP '
+
+    lbu include /etc/init.d/webcam_stream;
+    lbu include /usr/local/bin/webcam_capture.sh;
+
+    chown root:root /etc/monitrc;
+    chmod 700 /etc/monitrc;
+    mkdir -p /etc/monit.d;
+
+    rc-update add webcam_stream default;
+    rc-update add monit default;
+
+    # don't forget to update Alpine local backup
+    lbu commit;
+    '
 #+end_src
 
 #+html: </details>

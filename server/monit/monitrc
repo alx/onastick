@@ -1,0 +1,9 @@
+set daemon  10
+set log syslog
+
+set httpd port 2812
+    use address localhost  # only allow localhost access
+    allow localhost         # allow access from localhost only
+    allow admin:monit       # set username and password
+
+include /etc/monit.d/*

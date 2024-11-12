@@ -1,0 +1,4 @@
+check process webcam_stream with pidfile /run/webcam_stream.pid
+  start program = "/sbin/rc-service webcam_stream start"
+  stop program  = "/sbin/rc-service webcam_stream stop"
+  if not exist then restart

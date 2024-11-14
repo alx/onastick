@@ -5,7 +5,7 @@
 #   'rc-status': [ /* list of running services on raspi */ ]
 # }
 {
-    services=$(rc-status | awk '/^ / {print $1, $3}' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+    services=$(rc-status | awk '/^ / {print $1, $3}' | jq -R -s -c 'split("\n") | map(select( [ . | contains("crashed") ] | any))')
 } &> /dev/null
 echo "HTTP/1.0 200 OK"
 echo "Content-type: application/json"

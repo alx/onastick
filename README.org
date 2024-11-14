@@ -295,7 +295,6 @@ rsync -avh ./server/bin/raspi_restart_webcam.sh \
 ssh root@$RASPI_IP rc-service nginx restart
 
 ssh root@$RASPI_IP '
-
     lbu include /usr/local/bin/webcam_capture.sh;
     lbu include /usr/local/bin/raspi_status.sh;
     lbu include /usr/local/bin/raspi_restart_webcam.sh;

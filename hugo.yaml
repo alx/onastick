@@ -36,11 +36,11 @@ params:
     #
     # ====
     #
-    # Result Placeholder URL
+    # Result Logo URL
     #
-    # use this image as a placeholder for main screen
+    # use this image as a logo for main screen
     #
-    srcPlaceholder: "/placeholder.jpg"
+    srcLogo: "/placeholder.jpg"
     #
     # ====
     #
@@ -49,3 +49,7 @@ params:
     # use this image as a placeholder for processing screen
     #
     srcProcessing: "/processing.jpg"
+markup:
+    goldmark:
+        renderer:
+            unsafe: true

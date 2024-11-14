@@ -28,9 +28,45 @@ const btnSmileModifyEmoji = () => {
   btnSmile.innerText = selectedEmoji;
 }
 
+const getRandomImage = async (imgId) => {
+
+  const imgElement = document.getElementById(imgId);
+  const imgFolder = "img";
+
+  if (!imgElement)
+    return
+
+  try {
+
+    const response = await fetch(`./${imgFolder}/${imgId}/`);
+    const imageList = await response.json();
+    const randomIndex = Math.floor(Math.random() * imageList.length);
+
+    const imgUrl = `./${imgFolder}/${imgId}/${imageList[randomIndex].name}`;
+    document.getElementById(imgId).src = imgUrl;
+
+  } catch (error) {
+    console.error('Error fetching image list:', error);
+  }
+
+}
+
 window.onload = () => {
-  btnPhotoEmojiInterval = setInterval(btnPhotoModifyEmoji, 300);
-  btnSmileEmojiInterval = setInterval(btnSmileModifyEmoji, 400);
+
+  const btnSmile = document.getElementById('btnSmile');
+  if (btnSmile) {
+    btnPhotoEmojiInterval = setInterval(btnPhotoModifyEmoji, 300);
+    btnSmileEmojiInterval = setInterval(btnSmileModifyEmoji, 400);
+  }
+
+  // Set random images
+  getRandomImage("logo");
+  getRandomImage("countdown1");
+  getRandomImage("countdown2");
+  getRandomImage("countdown3");
+  getRandomImage("smile");
+  getRandomImage("processing");
+
 }
 
 // When clicking on btnSmile, show a grimacing face for 1s
@@ -68,69 +104,6 @@ const getImgSource = async (url) => {
 
   return img;
 
-}
-
-const getImgBase64 = async (img) => {
-
-  let dataURL;
-
-  try {
-
-    let canvas = document.createElement('CANVAS');
-    canvas.width = 960;
-    canvas.height = 720;
-    let ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    ctx.drawImage(img, 0,0);
-
-    // "data:image/png;base64,..."
-    dataURL = await canvas.toDataURL();
-
-  } catch (e) {
-
-    console.log({ e });
-
-  }
-
-  return new Promise(resolve => resolve(dataURL));
-}
-
-const getImgBase64Resized = async (img) => {
-
-  let dataURL;
-
-  try {
-
-    let canvas = document.createElement('CANVAS', {antialias: false});
-    canvas.width = 1024;
-    canvas.height = 1024;
-
-    let ctx = canvas.getContext('2d');
-    ctx.mozImageSmoothingEnabled = false;
-    ctx.webkitImageSmoothingEnabled = false;
-    ctx.msImageSmoothingEnabled = false;
-    ctx.imageSmoothingEnabled = false;
-
-    const hRatio = canvas.width  / img.width    ;
-    const vRatio =  canvas.height / img.height  ;
-    const ratio  = Math.max ( hRatio, vRatio );
-    const centerShift_x = ( canvas.width - img.width*ratio ) / 2;
-    const centerShift_y = ( canvas.height - img.height*ratio ) / 2;
-
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    ctx.drawImage(img, 0,0, img.width, img.height,
-                      centerShift_x,centerShift_y,img.width*ratio, img.height*ratio);
-
-    // "data:image/png;base64,..."
-    dataURL = await canvas.toDataURL();
-
-  } catch (e) {
-
-    console.log({ e });
-
-  }
-
-  return new Promise(resolve => resolve(dataURL));
 }
 
 const txt2imgApiRequest = async (promptSlug, base64Str) => {
@@ -210,7 +183,7 @@ const startCountdown = (event) => {
     } else {
 
       document.getElementById("countdown1").classList.add("d-none");
-      document.getElementById("countdownSmile").classList.remove("d-none");
+      document.getElementById("smile").classList.remove("d-none");
 
       clearInterval(photoCountdownInterval);
 
@@ -223,7 +196,7 @@ const startCountdown = (event) => {
       const base64Str = await capture.text();
 
       // Replace top image with capture
-      document.getElementById("countdownSmile").classList.add("d-none");
+      document.getElementById("smile").classList.add("d-none");
       const base64Img = "data:image/png;base64," + base64Str;
       imgElementTop.src = base64Img;
       imgElementTop.classList.remove("d-none");
@@ -240,8 +213,9 @@ const takePhoto = async (promptSlug, base64Str) => {
   let imgElementTop = document.getElementById("photoStream")
 
   let imgElementBottom = document.getElementById("photoBottom")
-  let imgElementPlaceholder = document.getElementById("photoBottomPlaceholder")
-  let imgElementProcessing = document.getElementById("photoBottomProcessing")
+
+  let imgElementLogo = document.getElementById("logo")
+  let imgElementProcessing = document.getElementById("processing")
 
   let btnSmile = document.getElementById("btnSmile");
   let btnCountdown = document.getElementById("btnCountdown");
@@ -284,10 +258,22 @@ const takePhoto = async (promptSlug, base64Str) => {
   )
 
   try {
-    imgElementPlaceholder.classList.add("d-none")
+    imgElementLogo.classList.add("d-none")
     imgElementProcessing.classList.remove("d-none")
 
-    imgElementBottom.src = await txt2imgApiRequest(promptSlug, base64Str);
+    const genImgObjectURL = await txt2imgApiRequest(promptSlug, base64Str);
+    imgElementBottom.src = genImgObjectURL
+
+    // Clickable image for full screen
+    imgElementBottom.addEventListener('click', () => {
+      var w = window.open('about:blank');
+      setTimeout(() => {
+        w.document.body.appendChild(w.document.createElement('iframe'))
+         .src = genImgObjectURL;
+        w.document.getElementsByTagName("iframe")[0].style.width = '100%';
+        w.document.getElementsByTagName("iframe")[0].style.height = '100%';
+      }, 0);
+    });
 
     imgElementProcessing.classList.add("d-none")
     imgElementBottom.classList.remove("d-none")
@@ -386,10 +372,55 @@ const actionKeepClick = async (e) => {
   clearInterval(btnRefreshInterval);
 }
 
+const raspiStatusClick = () => {
+  fetch('/raspi_status', {
+    method: 'POST'
+  })
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('statusResult').innerText = data;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+const raspiRestartWebcamClick = () => {
+  fetch('/raspi_restart_webcam', {
+    method: 'POST'
+  })
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('statusResult').innerText = data;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 let btnPhotos = document.getElementsByClassName("btn-photo");
 for (var i = 0; i < btnPhotos.length; i++) {
   btnPhotos.item(i).addEventListener("click", startCountdown, false)
 }
-document.getElementById("btnSmile").addEventListener("click", smileClick, false)
-document.getElementById("btnProcessing").addEventListener("click", processingClick, false)
-document.getElementById("btnActionKeep").addEventListener("click", actionKeepClick, false)
+
+const btnSmile = document.getElementById("btnSmile")
+if (btnSmile) {
+  btnSmile.addEventListener("click", smileClick, false)
+}
+
+const btnProcessing = document.getElementById("btnProcessing")
+if (btnProcessing) {
+  btnProcessing.addEventListener("click", processingClick, false)
+}
+
+const btnActionKeep = document.getElementById("btnActionKeep")
+if (btnActionKeep) {
+  btnActionKeep.addEventListener("click", actionKeepClick, false)
+}
+
+// Raspi admin page
+const btnRaspiStatus = document.getElementById("btnRaspiStatus")
+if (btnRaspiStatus) {
+  btnRaspiStatus.addEventListener("click", raspiStatusClick, false)
+}
+
+const btnRaspiRestartWebcam = document.getElementById("btnRaspiRestartWebcam")
+if (btnRaspiRestartWebcam) {
+  btnRaspiRestartWebcam.addEventListener("click", raspiRestartWebcamClick, false)
+}

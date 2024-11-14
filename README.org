@@ -174,7 +174,8 @@ ssh root@$RASPI_IP <<'EOL'
         ffmpeg \
         tailscale \
         vim \
-        fcgiwrap
+        fcgiwrap \
+        jq
 EOL
 
 # don't forget to update Alpine local backup
@@ -206,6 +207,7 @@ ssh root@$RASPI_IP 'rc-update add local default'
 ssh root@$RASPI_IP 'lbu commit'
 #+end_src
 
+
 #+html: </details>
 #+html: <details><summary>
 **** Install webcam_stream service
@@ -215,10 +217,6 @@ ssh root@$RASPI_IP 'lbu commit'
 <<init_var>>
 rsync -avh ./server/init.d/webcam_stream \
     root@${RASPI_IP}:/etc/init.d/webcam_stream \
-    --delete
-
-rsync -avh ./server/bin/webcam_capture.sh \
-    root@${RASPI_IP}:/usr/local/bin/webcam_capture.sh \
     --delete
 
 rsync -avh ./server/monit/monitrc \
@@ -232,7 +230,6 @@ rsync -avh ./server/monit/monit.d/webcam_stream \
 ssh root@$RASPI_IP '
 
     lbu include /etc/init.d/webcam_stream;
-    lbu include /usr/local/bin/webcam_capture.sh;
 
     chown root:root /etc/monitrc;
     chmod 700 /etc/monitrc;
@@ -277,11 +274,35 @@ rsync -avh ./server/nginx/nginx.conf \
 rsync -avh ./server/nginx/onastick.conf \
     root@${RASPI_IP}:/etc/nginx/http.d/default.conf
 
+
+# install fcgi scripts
+# - webcam_capture.sh : monit unmonitor webcam_stream, ffmpeg 1 frame, return base64 capture
+# - raspi_status.sh : return rc-status output
+# - raspi_restart_webcam.sh : restart webcam_stream service, return rc-status output
+rsync -avh ./server/bin/webcam_capture.sh \
+    root@${RASPI_IP}:/usr/local/bin/webcam_capture.sh \
+    --delete
+
+rsync -avh ./server/bin/raspi_status.sh \
+    root@${RASPI_IP}:/usr/local/bin/raspi_status.sh \
+    --delete
+
+rsync -avh ./server/bin/raspi_restart_webcam.sh \
+    root@${RASPI_IP}:/usr/local/bin/raspi_restart_webcam.sh \
+    --delete
+
 # restart nginx service
 ssh root@$RASPI_IP rc-service nginx restart
 
-# don't forget to update Alpine local backup
-ssh root@$RASPI_IP 'lbu commit'
+ssh root@$RASPI_IP '
+
+    lbu include /usr/local/bin/webcam_capture.sh;
+    lbu include /usr/local/bin/raspi_status.sh;
+    lbu include /usr/local/bin/raspi_restart_webcam.sh;
+
+    # don't forget to update Alpine local backup
+    lbu commit;
+    '
 #+end_src
 
 ** Maintenance

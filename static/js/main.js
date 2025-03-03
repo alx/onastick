@@ -372,28 +372,6 @@ const actionKeepClick = async (e) => {
   clearInterval(btnRefreshInterval);
 }
 
-const raspiStatusClick = () => {
-  fetch('/raspi_status', {
-    method: 'POST'
-  })
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('statusResult').innerText = data;
-    })
-    .catch(error => console.error('Error:', error));
-}
-
-const raspiRestartWebcamClick = () => {
-  fetch('/raspi_restart_webcam', {
-    method: 'POST'
-  })
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('statusResult').innerText = data;
-    })
-    .catch(error => console.error('Error:', error));
-}
-
 let btnPhotos = document.getElementsByClassName("btn-photo");
 for (var i = 0; i < btnPhotos.length; i++) {
   btnPhotos.item(i).addEventListener("click", startCountdown, false)
@@ -416,11 +394,46 @@ if (btnActionKeep) {
 
 // Raspi admin page
 const btnRaspiStatus = document.getElementById("btnRaspiStatus")
-if (btnRaspiStatus) {
-  btnRaspiStatus.addEventListener("click", raspiStatusClick, false)
+const btnRaspiRestartWebcam = document.getElementById("btnRaspiRestartWebcam")
+const btnRaspiTimelapseStart = document.getElementById("btnRaspiTimelapseStart")
+const btnRaspiTimelapseStop = document.getElementById("btnRaspiTimelapseStop")
+
+const raspiAdminRequest = async (url) {
+  const response = await fetch(url, { method: 'POST' });
+  const data = await response.text()
+
+  const previousStatus = document.getElementById('statusResult').innerText;
+  document.getElementById('statusResult').innerText = data + "\n===\n" + previousStatus;
 }
 
-const btnRaspiRestartWebcam = document.getElementById("btnRaspiRestartWebcam")
+if (btnRaspiStatus) {
+  btnRaspiStatus.addEventListener(
+    "click",
+    raspiAdminRequest('/raspi_status'),
+    false
+  )
+}
+
 if (btnRaspiRestartWebcam) {
-  btnRaspiRestartWebcam.addEventListener("click", raspiRestartWebcamClick, false)
+  btnRaspiRestartWebcam.addEventListener(
+    "click",
+    raspiAdminRequest('/raspi_restart_webcam'),
+    false
+  )
+}
+
+if (btnRaspiTimelapseStart) {
+  btnRaspiTimelapseStart.addEventListener(
+    "click",
+    raspiAdminRequest('/raspi_timelapse_start'),
+    false
+  )
+}
+
+if (btnRaspiTimelapseStop) {
+  btnRaspiTimelapseStop.addEventListener(
+    "click",
+    raspiAdminRequest('/raspi_timelapse_stop'),
+    false
+  )
 }

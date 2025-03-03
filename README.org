@@ -304,6 +304,46 @@ ssh root@$RASPI_IP '
     '
 #+end_src
 
+**** Timelapse feature
+#+html: </summary>
+
+#+begin_src bash :noweb yes :results silent
+<<init_var>>
+
+# http.d/default.conf
+rsync -avh ./server/nginx/onastick.conf \
+    root@${RASPI_IP}:/etc/nginx/http.d/default.conf
+
+
+# install fcgi scripts
+# - webcam_timelapse.sh : capture frame every 5 seconds
+# - raspi_timelapse_start.sh : start timelapse service
+# - raspi_timelapse_stop.sh : stop timelapse service
+rsync -avh ./server/bin/webcam_timelapse.sh \
+    root@${RASPI_IP}:/usr/local/bin/webcam_timelapse.sh \
+    --delete
+
+rsync -avh ./server/bin/raspi_timelapse_start.sh \
+    root@${RASPI_IP}:/usr/local/bin/raspi_timelapse_start.sh \
+    --delete
+
+rsync -avh ./server/bin/raspi_timelapse_stop.sh \
+    root@${RASPI_IP}:/usr/local/bin/raspi_timelapse_stop.sh \
+    --delete
+
+# restart nginx service
+ssh root@$RASPI_IP rc-service nginx restart
+
+ssh root@$RASPI_IP '
+    lbu include /usr/local/bin/webcam_timelapse.sh;
+    lbu include /usr/local/bin/raspi_timelapse_start.sh;
+    lbu include /usr/local/bin/raspi_timelapse_stop.sh;
+
+    # don't forget to update Alpine local backup
+    lbu commit;
+    '
+#+end_src
+
 ** Maintenance
 
 *** Update nginx on raspberry pi
